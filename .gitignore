@@ -1,0 +1,9 @@
+.vscode/
+FoodStore.Api/bin/
+FoodStore.Api/obj/
+
+FoodStore.Service/bin/
+FoodStore.Service/obj/
+
+FoodStore.Data/bin/
+FoodStore.Data/obj/
