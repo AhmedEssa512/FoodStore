@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FoodStore.Service.DTOS;
+using FoodStore.Data.DTOS;
 
-namespace FoodStore.Service.Authenticaion
+namespace FoodStore.Service.Authentication
 {
     public interface IAuthService
     {

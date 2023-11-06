@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace FoodStore.Service.DTOS
+namespace FoodStore.Data.DTOS
 {
     public class AuthDto
     {

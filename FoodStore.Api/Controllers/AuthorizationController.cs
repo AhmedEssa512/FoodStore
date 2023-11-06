@@ -4,8 +4,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using FoodStore.Service.Authorization;
-using FoodStore.Service.DTOS;
 using Microsoft.AspNetCore.Mvc;
+using FoodStore.Data.DTOS;
 
 namespace FoodStore.Api.Controllers
 {

@@ -4,17 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FoodStore.Service.DTOS
+namespace FoodStore.Data.DTOS
 {
-    public class UserDto
+    public class LogInDto
     {
         [Required]
         public string Email { get; set; }
-
         [Required]
-        public string Username { get; set; }
-
-        [Required]
-        public string password { get; set; }
+        public string password { get; set; }       
     }
 }

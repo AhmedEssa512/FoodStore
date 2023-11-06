@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using FoodStore.Data.Entities;
-using FoodStore.Service.DTOS;
+using FoodStore.Data.DTOS;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +14,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodStore.Service.Authenticaion
+namespace FoodStore.Service.Authentication
 {
     public class AuthService : IAuthService
     {

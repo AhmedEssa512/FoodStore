@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Service.Authorization;
-using FoodStore.Service.Authenticaion;
 using FoodStore.Service.GenericRepository;
 using FoodStore.Service.IRepos;
 using FoodStore.Service.Repos;
 using Microsoft.Extensions.DependencyInjection;
+using FoodStore.Service.Authentication;
 
 namespace FoodStore.Service
 {

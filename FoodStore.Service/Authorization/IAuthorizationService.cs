@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Data.Entities;
-using FoodStore.Service.DTOS;
+using FoodStore.Data.DTOS;
 using Microsoft.AspNetCore.Identity;
 
 namespace FoodStore.Service.Authorization
