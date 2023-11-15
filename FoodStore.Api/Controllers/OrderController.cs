@@ -57,7 +57,7 @@ namespace FoodStore.Api.Controllers
             var order = await _order.GetByIdAsync(orderId);
 
             if(order is null)
-             return BadRequest("Not found order");
+             return NotFound("Not found order");
 
              await _order.DeleteAsync(order);
 

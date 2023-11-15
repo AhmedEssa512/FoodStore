@@ -38,7 +38,7 @@ namespace FoodStore.Api.Controllers
             if(amount <= 0 ) return BadRequest("Invalid amount");
 
           if(! await _food.IsFoundFoodId(foodId))
-            return BadRequest("Not found food");
+            return NotFound("Not found food");
 
         
             var userId = HttpContext.User.FindFirstValue("uid");
@@ -73,7 +73,7 @@ namespace FoodStore.Api.Controllers
         {
             var cart = await _shoppingCart.GetByIdAsync(cartId);
 
-            if(cart is null) return BadRequest("Not found Cart");
+            if(cart is null) return NotFound("Not found Cart");
 
            await _shoppingCart.DeleteAsync(cart);
 
@@ -83,9 +83,11 @@ namespace FoodStore.Api.Controllers
         [HttpPut("Update/{cartId}")]
         public async Task<IActionResult> UpdateAsync(int cartId,[FromForm] int amount)
         {
+            if(!ModelState.IsValid)
+             return BadRequest(ModelState);
             var cart = await _shoppingCart.GetByIdAsync(cartId);
 
-            if(cart is null) return BadRequest("Not found Cart");
+            if(cart is null) return NotFound("Not found Cart");
 
             if(amount <= 0 ) return BadRequest("Not valid amount");
 

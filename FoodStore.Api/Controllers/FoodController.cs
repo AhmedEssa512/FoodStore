@@ -27,8 +27,12 @@ namespace FoodStore.Api.Controllers
         [HttpPost("AddFoodAsync")]
         public async Task<IActionResult> AddFoodAsync([FromForm]FoodDto foodDto)
         {
+
+            if(!ModelState.IsValid) 
+             return BadRequest(ModelState);
+        
             if( !await _category.IsFoundCategory(foodDto.CategoryId) )
-             return BadRequest("Not found category with this name!");
+             return NotFound("Not found category with this name!");
 
                  
               var food = new Food();
@@ -59,7 +63,7 @@ namespace FoodStore.Api.Controllers
             var food = await _food.GetByIdAsync(foodId);
 
             if(food is null)
-             return BadRequest("Not found food");
+             return NotFound("Not found food");
 
              await _food.DeleteAsync(food);
 
@@ -71,14 +75,16 @@ namespace FoodStore.Api.Controllers
         [HttpPut("UpdateAsync/{foodId}")]
         public async Task<IActionResult> UpdateAsync(int foodId,[FromForm]FoodDto foodDto)
         {
+                if(! ModelState.IsValid)
+                 return BadRequest(ModelState);
 
                 var food = await _food.GetByIdAsync(foodId);
 
                 if(food is null)
-                 return BadRequest("Not found food");
+                 return NotFound("Not found food");
 
                 if( !await _category.IsFoundCategory(foodDto.CategoryId) )
-                  return BadRequest("Not found category with this name!");
+                  return NotFound("Not found category with this name!");
 
                  
 
