@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
 // using FoodStore.Service.DTOS;
-using FoodStore.Service.IRepos;
+using FoodStore.Service.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,13 +17,13 @@ namespace FoodStore.Api.Controllers
     [Authorize(Roles = "Customer,Admin")]
     public class OrderController : ControllerBase
     {
-        private readonly IOrderRepo _order;
-        private readonly IOrderDetailsRepo _orderDetails;
+        private readonly IOrderService _order;
+        private readonly IOrderDetailsService _orderDetails;
 
-        private readonly IShoppingCartRepo _shoppingCart;
+        private readonly IShoppingCartService _shoppingCart;
 
 
-        public OrderController(IOrderRepo order,IShoppingCartRepo shoppingCart,IOrderDetailsRepo orderDetails)
+        public OrderController(IOrderService order,IShoppingCartService shoppingCart,IOrderDetailsService orderDetails)
         {
             _order = order ;
             _orderDetails = orderDetails;

@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 using FoodStore.Data.Entities;
 using FoodStore.Service.Context;
 using FoodStore.Service.GenericRepository;
-using FoodStore.Service.IRepos;
+using FoodStore.Service.Abstracts;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodStore.Service.Repos
+namespace FoodStore.Service.Implementations
 {
-    public class CategoryRepo : GenericBase<Category>, ICategoryRepo
+    public class CategoryService : GenericBase<Category>, ICategoryService
     {
 
 
         private DbSet<Category> _category;
 
-        public CategoryRepo(ApplicationDbContext context) : base(context)
+        public CategoryService(ApplicationDbContext context) : base(context)
         {
             _category = context.Set<Category>();
         }

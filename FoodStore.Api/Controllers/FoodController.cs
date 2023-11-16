@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
-using FoodStore.Service.IRepos;
+using FoodStore.Service.Abstracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodStore.Api.Controllers
@@ -13,11 +13,11 @@ namespace FoodStore.Api.Controllers
     [Route("api/[controller]")]
     public class FoodController : ControllerBase
     {
-        private readonly IFoodRepo _food;
-        private readonly ICategoryRepo _category;
+        private readonly IFoodService _food;
+        private readonly ICategoryService _category;
 
 
-        public FoodController(IFoodRepo food,ICategoryRepo category)
+        public FoodController(IFoodService food,ICategoryService category)
         {
             _food = food;
             _category = category;

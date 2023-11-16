@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Service.Authorization;
 using FoodStore.Service.GenericRepository;
-using FoodStore.Service.IRepos;
-using FoodStore.Service.Repos;
+using FoodStore.Service.Abstracts;
+using FoodStore.Service.Implementations;
 using Microsoft.Extensions.DependencyInjection;
 using FoodStore.Service.Authentication;
 
@@ -16,12 +16,12 @@ namespace FoodStore.Service
          public static IServiceCollection AddServiceDependencies(this IServiceCollection services, Microsoft.Extensions.Configuration.ConfigurationManager configuration)
         {
              services.AddTransient(typeof(IGenericBase<>), typeof(GenericBase<>));
-             services.AddTransient<ICategoryRepo,CategoryRepo>();
-             services.AddTransient<IFoodRepo,FoodRepo>();
-             services.AddTransient<IShoppingCartRepo,ShoppingCartRepo>();
+             services.AddTransient<ICategoryService,CategoryService>();
+             services.AddTransient<IFoodService,FoodService>();
+             services.AddTransient<IShoppingCartService,ShoppingCartService>();
              services.AddTransient<IAuthService,AuthService>();
-             services.AddTransient<IOrderRepo,OrderRepo>();
-             services.AddTransient<IOrderDetailsRepo,OrderDetailsRepo>();
+             services.AddTransient<IOrderService,OrderService>();
+             services.AddTransient<IOrderDetailsService,OrderDetailsService>();
              services.AddTransient<IAuthorizationService,AuthorizationService>();
              
             return services;

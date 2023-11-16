@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 using FoodStore.Data.Entities;
 using FoodStore.Service.GenericRepository;
 
-namespace FoodStore.Service.IRepos
+namespace FoodStore.Service.Abstracts
 {
-    public interface IFoodRepo : IGenericBase<Food>
+    public interface IOrderDetailsService : IGenericBase<OrderDetail>
     {
-       public Task<List<Food>> GetFoodsAsync();
-       public Task<bool> IsFoundFoodId(int foodId);
+        public Task AddOrderDetails(Order order); 
     }
 }

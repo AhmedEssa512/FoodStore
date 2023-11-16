@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FoodStore.Data.Entities;
-using FoodStore.Service.IRepos;
+using FoodStore.Service.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +17,12 @@ namespace FoodStore.Api.Controllers
     [Authorize]
     public class ShoppingCartController : ControllerBase
     {
-        private readonly IShoppingCartRepo _shoppingCart;
+        private readonly IShoppingCartService _shoppingCart;
         private readonly UserManager<ApplicationUser> _usermanager;
-        private readonly IFoodRepo _food;
+        private readonly IFoodService _food;
 
 
-        public ShoppingCartController(IShoppingCartRepo shoppingCart,IFoodRepo food,UserManager<ApplicationUser> usermanager)
+        public ShoppingCartController(IShoppingCartService shoppingCart,IFoodService food,UserManager<ApplicationUser> usermanager)
         {
             _shoppingCart = shoppingCart;
             _food = food;

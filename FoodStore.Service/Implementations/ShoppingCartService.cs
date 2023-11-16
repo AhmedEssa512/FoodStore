@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Data.Entities;
+using FoodStore.Service.Abstracts;
 using FoodStore.Service.Context;
 using FoodStore.Service.GenericRepository;
-using FoodStore.Service.IRepos;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodStore.Service.Repos
+namespace FoodStore.Service.Implementations
 {
-    public class ShoppingCartRepo : GenericBase<Cart>, IShoppingCartRepo
+    public class ShoppingCartService : GenericBase<Cart>, IShoppingCartService
     {
         private DbSet<Cart> _cart;
-        public ShoppingCartRepo(ApplicationDbContext context) : base(context)
+        public ShoppingCartService(ApplicationDbContext context) : base(context)
         {
             _cart = context.Set<Cart>();
         }

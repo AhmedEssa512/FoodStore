@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using FoodStore.Data.Entities;
 using FoodStore.Service.GenericRepository;
 
-namespace FoodStore.Service.IRepos
+namespace FoodStore.Service.Abstracts
 {
-    public interface IShoppingCartRepo : IGenericBase<Cart>
+    public interface IShoppingCartService : IGenericBase<Cart>
     {
         public Task<Cart> IsFoodInCart(int foodId,string userId);
         public Task<IQueryable<Cart>> GetCarts (string userId);

@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using FoodStore.Data.Entities;
 using FoodStore.Service.Context;
 using FoodStore.Service.GenericRepository;
-using FoodStore.Service.IRepos;
+using FoodStore.Service.Abstracts;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodStore.Service.Repos
+namespace FoodStore.Service.Implementations
 {
-    public class FoodRepo : GenericBase<Food> , IFoodRepo
+    public class FoodService : GenericBase<Food> , IFoodService
     {
           private readonly DbSet<Food> _Food;
 
-        public FoodRepo(ApplicationDbContext context) : base(context)
+        public FoodService(ApplicationDbContext context) : base(context)
         {
             _Food = context.Set<Food>();
         }

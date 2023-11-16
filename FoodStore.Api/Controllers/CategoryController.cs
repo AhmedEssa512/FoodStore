@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
-using FoodStore.Service.IRepos;
+using FoodStore.Service.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,9 +14,9 @@ namespace FoodStore.Api.Controllers
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryRepo _category;
+        private readonly ICategoryService _category;
 
-        public CategoryController(ICategoryRepo category)
+        public CategoryController(ICategoryService category)
         {
             _category = category;
         }

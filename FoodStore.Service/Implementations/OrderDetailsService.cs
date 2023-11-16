@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 using FoodStore.Data.Entities;
 using FoodStore.Service.Context;
 using FoodStore.Service.GenericRepository;
-using FoodStore.Service.IRepos;
+using FoodStore.Service.Abstracts;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodStore.Service.Repos
+namespace FoodStore.Service.Implementations
 {
-    public class OrderDetailsRepo : GenericBase<OrderDetail>, IOrderDetailsRepo
+    public class OrderDetailsService : GenericBase<OrderDetail>, IOrderDetailsService
     {
 
         private readonly DbSet<OrderDetail> _orderDetails;
         private readonly ApplicationDbContext _context;
-        private readonly IShoppingCartRepo _shoppingCartRepo;
-        public OrderDetailsRepo(ApplicationDbContext context,IShoppingCartRepo shoppingCartRepo) : base(context)
+        private readonly IShoppingCartService _shoppingCartRepo;
+        public OrderDetailsService(ApplicationDbContext context,IShoppingCartService shoppingCartRepo) : base(context)
         {
             _context = context;
             _shoppingCartRepo = shoppingCartRepo;

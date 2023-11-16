@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using FoodStore.Data.Entities;
 using FoodStore.Service.GenericRepository;
 
-namespace FoodStore.Service.IRepos
+namespace FoodStore.Service.Abstracts
 {
-    public interface IOrderRepo : IGenericBase<Order>
+    public interface IOrderService : IGenericBase<Order>
     {
-
+        Task<IEnumerable<Order>> GetOrders(string userId);
     }
 }
