@@ -63,5 +63,12 @@ namespace FoodStore.Api.Controllers
 
              return Ok("Succeeded");
         }
+
+       [HttpGet("GetOrders")]
+       public async Task<IActionResult> getOrdersAsync()
+       {
+          
+          return Ok( await _order.GetOrders(HttpContext.User.FindFirstValue("uid")) );  
+       }
     }
 }

@@ -23,9 +23,11 @@ namespace FoodStore.Service.Implementations
         
         }
 
-        public Task<IEnumerable<Order>> GetOrders(string userId)
+        public async Task<IEnumerable<Order>> GetOrders(string userId)
         {
-            throw new NotImplementedException();
+           return await _Order.Where(u => u.UserId == userId)
+            .Include(o => o.orderDetails)
+            .ToListAsync();
         }
     }
 }
