@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
- builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+var jwtSettings = builder.Configuration.GetSection("JWT").Get<JWT>();
  builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -42,9 +42,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
-                        ValidIssuer = builder.Configuration["JWT:Issuer"],
-                        ValidAudience = builder.Configuration["JWT:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+                        ValidIssuer = jwtSettings.Issuer,
+                        ValidAudience = jwtSettings.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
                     };
                 });
 
