@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace FoodStore.Service.Authentication
 {
     public class AuthService : IAuthService
@@ -31,14 +32,9 @@ namespace FoodStore.Service.Authentication
 
 
 
-
-
-
         public async  Task<AuthDto> LoggInAsync(LogInDto userDto)
         {
            
-           
-
             var user = await _usermanager.FindByEmailAsync(userDto.Email);
             if(user is null || !await _usermanager.CheckPasswordAsync(user,userDto.password))
             {

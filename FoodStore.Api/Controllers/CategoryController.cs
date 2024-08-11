@@ -7,6 +7,7 @@ using FoodStore.Data.Entities;
 using FoodStore.Service.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace FoodStore.Api.Controllers
 {
@@ -15,10 +16,12 @@ namespace FoodStore.Api.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _category;
+        private readonly IStringLocalizer<CategoryController> _localizer;
 
-        public CategoryController(ICategoryService category)
+        public CategoryController(ICategoryService category,IStringLocalizer<CategoryController> localizer)
         {
             _category = category;
+            _localizer = localizer;
         }
 
 
@@ -43,11 +46,11 @@ namespace FoodStore.Api.Controllers
             var category = await _category.GetByIdAsync(id);
 
             if(category is null)
-             return NotFound("Category Not found");
+             return NotFound(_localizer["CategoryIsNotFound"].Value);
 
              await _category.DeleteAsync(category);
 
-             return Ok("succeeded");
+             return Ok(_localizer["Deleted"].Value);
         }
 
 
@@ -60,14 +63,14 @@ namespace FoodStore.Api.Controllers
             var category = await _category.GetByIdAsync(id);
 
             if(category is null)
-             return NotFound("Category Not found");
+             return NotFound(_localizer["CategoryIsNotFound"].Value);
 
              category.Name = categoryDto.Name;
              category.Description = categoryDto.Description;
 
              await _category.UpdateAsync(category);
 
-             return Ok("succeeded");
+             return Ok(_localizer["Updated"].Value);
 
         }
 
