@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AddFailed" xml:space="preserve">
-    <value>Add Failed </value>
+    <value>Add Failed</value>
   </data>
   
   <data name="BadRequest" xml:space="preserve">
@@ -138,7 +138,7 @@
     <value>Is Already Exist</value>
   </data>
   <data name="IsNotExist" xml:space="preserve">
-    <value> is Not Exist</value>
+    <value>Is Not Exist</value>
   </data>
  
   
@@ -156,7 +156,7 @@
     <value>Update Operation Failed</value>
   </data>
   <data name="CategoryIsNotFound" xml:space="preserve">
-    <value>Category Is Not Found </value>
+    <value>Category Is Not Found</value>
   </data>
  
 </root>
