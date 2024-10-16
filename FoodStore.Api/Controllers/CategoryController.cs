@@ -76,8 +76,7 @@ namespace FoodStore.Api.Controllers
 
             
             [HttpGet("GetCategoriesAsync")]
-            [Authorize]
-            [ValidateAntiForgeryToken]
+            // [Authorize]
             public async Task<IActionResult> GetCategoriesAsync()
             {
                 return Ok(await _category.GetCategoriesAsync());

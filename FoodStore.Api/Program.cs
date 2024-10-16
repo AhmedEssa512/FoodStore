@@ -46,9 +46,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
-                        ValidIssuer = jwtSettings.Issuer,
-                        ValidAudience = jwtSettings.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+                        ValidIssuer = jwtSettings!.Issuer,
+                        ValidAudience = jwtSettings!.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings!.Key))
                     };
                 });
 
@@ -70,6 +70,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;
+            });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
             });
 
 
@@ -100,6 +111,7 @@ var options = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
 app.UseRequestLocalization(options.Value);
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 

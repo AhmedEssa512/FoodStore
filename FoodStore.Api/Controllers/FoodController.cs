@@ -32,7 +32,7 @@ namespace FoodStore.Api.Controllers
              return BadRequest(ModelState);
         
             if( !await _category.IsFoundCategory(foodDto.CategoryId) )
-             return NotFound("Not found category with this name!");
+             return NotFound("Not found category with this Id!");
 
                  
               var food = new Food();
