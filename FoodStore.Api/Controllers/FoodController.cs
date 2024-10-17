@@ -108,6 +108,15 @@ namespace FoodStore.Api.Controllers
             return Ok("Succeeded");
         }
 
+        [HttpGet("GetFoodByIdAsync")]
+        public async Task<IActionResult> GetFoodByIdAsync(int foodId)
+        {
+            var food = await _food.GetByIdAsync(foodId);
+            if(food is null) return NotFound("Not Found food");
+
+            return Ok(food);
+        }
+
         [HttpGet("GetFoodsAsync")]
         public async Task<IActionResult> GetFoodsAsync()
         {

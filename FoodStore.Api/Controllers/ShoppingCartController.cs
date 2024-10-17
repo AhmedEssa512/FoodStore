@@ -80,6 +80,17 @@ namespace FoodStore.Api.Controllers
            return Ok("succeeded");
         }
 
+        [HttpDelete("DeleteRangeAsync")]
+        public async Task<IActionResult> DeleteRangeAync()
+        {
+            var carts = await _shoppingCart.GetCarts(HttpContext.User.FindFirstValue("uid"));
+            if(carts.Count() == 0) return BadRequest("No cart items found!");
+
+            await _shoppingCart.DeleteRangeAsync(carts.ToList());
+
+            return Ok(carts);
+        }
+
         [HttpPut("Update/{cartId}")]
         public async Task<IActionResult> UpdateAsync(int cartId,[FromForm] int amount)
         {

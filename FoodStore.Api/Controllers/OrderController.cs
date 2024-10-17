@@ -64,6 +64,15 @@ namespace FoodStore.Api.Controllers
              return Ok("Succeeded");
         }
 
+        [HttpGet("GetOrderByIdAsync")]
+        public async Task<IActionResult> GetOrderByIdAsync(int orderId)
+        {
+            var order = await _order.GetByIdAsync(orderId);
+            if(order is null) return NotFound("Not found order");
+
+            return Ok(order);
+        } 
+
        [HttpGet("GetOrders")]
        public async Task<IActionResult> getOrdersAsync()
        {

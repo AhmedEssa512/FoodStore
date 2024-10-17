@@ -74,6 +74,15 @@ namespace FoodStore.Api.Controllers
 
         }
 
+        [HttpGet("GetCategoryByIdAsync")]
+        public async Task<IActionResult> GetCategoryByIdAsync(int categoryId)
+        {
+            var category = await _category.GetByIdAsync(categoryId);
+            if(category is null) return NotFound(_localizer["CategoryIsNotFound"].Value);
+
+            return Ok(category);
+        }
+
             
             [HttpGet("GetCategoriesAsync")]
             // [Authorize]
