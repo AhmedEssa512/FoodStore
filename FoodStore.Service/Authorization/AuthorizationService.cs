@@ -20,15 +20,15 @@ namespace FoodStore.Service.Authorization
             _userManager = userManager;
         }
 
-        public async Task<string> AddRoleAsync(string roleName)
+        public async Task<string> AddRoleAsync(RoleDto roleDto)
         {
 
-            if(await IsRoleExistByName(roleName))
+            if(await IsRoleExistByName(roleDto.Name))
              return "a role is already exist";
 
             var identityRole = new IdentityRole();
 
-             identityRole.Name = roleName;
+             identityRole.Name = roleDto.Name;
 
              var result = await _roleManager.CreateAsync(identityRole);
 
@@ -92,13 +92,13 @@ namespace FoodStore.Service.Authorization
              return "Succeeded";
         }
 
-        public async Task<string> EditRoleAsync(string roleId, string roleName)
+        public async Task<string> UpdateRoleAsync(string roleId, RoleDto roleDto)
         {
             var role = await _roleManager.FindByIdAsync(roleId);
 
             if(role is null) return "Not found role";
 
-             role.Name = roleName;
+             role.Name = roleDto.Name;
 
              var result =  await _roleManager.UpdateAsync(role);
 

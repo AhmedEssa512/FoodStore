@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
 using FoodStore.Service.Abstracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodStore.Api.Controllers
@@ -13,114 +14,68 @@ namespace FoodStore.Api.Controllers
     [Route("api/[controller]")]
     public class FoodController : ControllerBase
     {
-        private readonly IFoodService _food;
-        private readonly ICategoryService _category;
+        private readonly IFoodService _foodService;
+       
 
 
-        public FoodController(IFoodService food,ICategoryService category)
+        public FoodController(IFoodService foodService)
         {
-            _food = food;
-            _category = category;
+            _foodService = foodService;
         }
 
 
-        [HttpPost("AddFoodAsync")]
-        public async Task<IActionResult> AddFoodAsync([FromForm]FoodDto foodDto)
+        [HttpPost("foods")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddFoodAsync([FromBody]FoodDto foodDto)
         {
 
-            if(!ModelState.IsValid) 
-             return BadRequest(ModelState);
-        
-            if( !await _category.IsFoundCategory(foodDto.CategoryId) )
-             return NotFound("Not found category with this Id!");
-
-                 
-              var food = new Food();
-
-             if(foodDto.Photo is not null)
-             {
-                 using var  DataStream = new MemoryStream();
-                 await foodDto.Photo.CopyToAsync(DataStream);
-
-                 food.Photo = DataStream.ToArray();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
             }
 
-
-            food.Name = foodDto.Name;
-            food.Description = foodDto.Description;
-            food.price = foodDto.price;
-            food.CategoryId = foodDto.CategoryId;
-            
-            await _food.AddAsync(food);
-            
-            return Ok(food);
+            await _foodService.AddFoodAsync(foodDto);
+        
+            return Ok(new {Message ="Added successfully."});
         } 
 
 
-        [HttpDelete("DeleteAsync/{foodId}")]
+        [HttpDelete("foods/{foodId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAsync(int foodId) 
         {
-            var food = await _food.GetByIdAsync(foodId);
+             await _foodService.DeleteFoodAsync(foodId);
 
-            if(food is null)
-             return NotFound("Not found food");
-
-             await _food.DeleteAsync(food);
-
-            return Ok("Succeeded");
+             return NoContent();
         }
 
 
-
-        [HttpPut("UpdateAsync/{foodId}")]
-        public async Task<IActionResult> UpdateAsync(int foodId,[FromForm]FoodDto foodDto)
-        {
-                if(! ModelState.IsValid)
-                 return BadRequest(ModelState);
-
-                var food = await _food.GetByIdAsync(foodId);
-
-                if(food is null)
-                 return NotFound("Not found food");
-
-                if( !await _category.IsFoundCategory(foodDto.CategoryId) )
-                  return NotFound("Not found category with this name!");
-
-                 
-
-             if(foodDto.Photo is not null)
-             {
-                 using var  DataStream = new MemoryStream();
-                 await foodDto.Photo.CopyToAsync(DataStream);
-
-                 food.Photo = DataStream.ToArray();
+        [HttpPut("foods/{foodId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateAsync(int foodId,[FromBody]FoodDto foodDto)
+        {       
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
             }
 
+            await _foodService.UpdateFoodAsync(foodId,foodDto);
 
-            food.Name = foodDto.Name;
-            food.Description = foodDto.Description;
-            food.price = foodDto.price;
-            food.CategoryId = foodDto.CategoryId;
-            
-            await _food.UpdateAsync(food);
-
-
-            return Ok("Succeeded");
+            return Ok(new {Message ="Updated successfully."});
         }
 
-        [HttpGet("GetFoodByIdAsync")]
+        [HttpGet("foods/{foodId}")]
         public async Task<IActionResult> GetFoodByIdAsync(int foodId)
         {
-            var food = await _food.GetByIdAsync(foodId);
-            if(food is null) return NotFound("Not Found food");
-
+            var food = await _foodService.GetFoodAsync(foodId);
+           
             return Ok(food);
         }
 
-        [HttpGet("GetFoodsAsync")]
+        [HttpGet("foods")]
         public async Task<IActionResult> GetFoodsAsync()
         {
-            return Ok(await _food.GetFoodsAsync());
+            return Ok(await _foodService.GetFoodsAsync());
         }
 
 

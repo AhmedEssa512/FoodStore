@@ -25,7 +25,7 @@ namespace FoodStore.Api.Controllers
         }
 
 
-        [HttpPost("RegisterAsync")]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody]UserDto userDto)
         {
             if(!ModelState.IsValid)
@@ -44,7 +44,7 @@ namespace FoodStore.Api.Controllers
         }
 
 
-        [HttpPost("LogInAsync")]
+        [HttpPost("login")]
         public async Task<IActionResult> LogInAsync([FromBody]LogInDto userDto)
         {
             if(!ModelState.IsValid)
@@ -62,7 +62,7 @@ namespace FoodStore.Api.Controllers
                return Ok(result);
         }
 
-        [HttpGet("refreshToken")]
+        [HttpGet("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
@@ -79,7 +79,7 @@ namespace FoodStore.Api.Controllers
 
 
 
-         [HttpPost("revokeToken")]
+         [HttpPost("revoke-token")]
         public async Task<IActionResult> RevokeToken([FromBody] RevokeToken dto)
         {
             var token = dto.Token ?? Request.Cookies["refreshToken"];
@@ -92,7 +92,7 @@ namespace FoodStore.Api.Controllers
             if(!result)
                 return BadRequest("Token is invalid!");
 
-            return Ok("Revoked Succeeded");
+            return Ok();
         }
 
         private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)

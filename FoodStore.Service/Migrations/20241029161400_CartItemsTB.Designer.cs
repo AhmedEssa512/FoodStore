@@ -4,6 +4,7 @@ using FoodStore.Service.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FoodStore.Service.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241029161400_CartItemsTB")]
+    partial class CartItemsTB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,7 +184,7 @@ namespace FoodStore.Service.Migrations
                     b.Property<byte[]>("Photo")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<double>("Price")
+                    b.Property<double>("price")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
@@ -204,15 +206,9 @@ namespace FoodStore.Service.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<double>("Total")
                         .HasColumnType("float");
@@ -235,14 +231,11 @@ namespace FoodStore.Service.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
                     b.Property<int>("FoodId")
                         .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("float");
 
                     b.Property<int>("orderId")
                         .HasColumnType("int");
@@ -455,13 +448,13 @@ namespace FoodStore.Service.Migrations
 
             modelBuilder.Entity("FoodStore.Data.Entities.Food", b =>
                 {
-                    b.HasOne("FoodStore.Data.Entities.Category", "Category")
+                    b.HasOne("FoodStore.Data.Entities.Category", "category")
                         .WithMany("Foods")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Category");
+                    b.Navigation("category");
                 });
 
             modelBuilder.Entity("FoodStore.Data.Entities.Order", b =>

@@ -18,16 +18,24 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using FoodStore.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-var jwtSettings = builder.Configuration.GetSection("JWT").Get<JWT>();
+// Clear the default claim type mappings
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+// Load JWT settings from the configuration
+var jwtSettingsSection = builder.Configuration.GetSection("JWT");
+var jwtSettings = jwtSettingsSection.Get<JWT>();
+
  builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
- options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+ options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!));
  builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 
@@ -79,7 +87,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                     {
                         builder.AllowAnyOrigin()
                             .AllowAnyMethod()
-                            .AllowAnyHeader();
+                            .AllowAnyHeader();             
                     });
             });
 
@@ -87,11 +95,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
+// seed roles
 using (var scope = app.Services.CreateScope())
 {
 
@@ -108,7 +119,7 @@ if (app.Environment.IsDevelopment())
 }
 
 var options = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
-app.UseRequestLocalization(options.Value);
+app.UseRequestLocalization(options!.Value);
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAllOrigins");

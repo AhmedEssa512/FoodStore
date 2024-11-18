@@ -15,81 +15,67 @@ namespace FoodStore.Api.Controllers
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryService _category;
-        private readonly IStringLocalizer<CategoryController> _localizer;
+        private readonly ICategoryService _categoryService;
 
-        public CategoryController(ICategoryService category,IStringLocalizer<CategoryController> localizer)
+        public CategoryController(ICategoryService  categoryService)
         {
-            _category = category;
-            _localizer = localizer;
+             _categoryService = categoryService;
         }
 
 
-        [HttpPost("AddAsync")]
-        public async Task<IActionResult> AddAsync([FromForm]CategoryDto categoryDto)
+        [HttpPost("categories")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddAsync([FromBody]CategoryDto categoryDto)
         {
-            if(!ModelState.IsValid)
-             return BadRequest(ModelState);
+              if (!ModelState.IsValid)
+               {
+                    return BadRequest(ModelState); 
+               }
 
-            var category = new Category();
-            category.Name = categoryDto.Name;
-            category.Description = categoryDto.Description;
+             await  _categoryService.AddCategoryAsync(categoryDto);
 
-             await  _category.AddAsync(category);
-
-            return Ok(category);
+             return Ok(new {Message ="Added successfully."});
         }
 
-        [HttpDelete("DeleteAsync/{id}")]
+        [HttpDelete("categories/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var category = await _category.GetByIdAsync(id);
-
-            if(category is null)
-             return NotFound(_localizer["CategoryIsNotFound"].Value);
-
-             await _category.DeleteAsync(category);
-
-             return Ok(_localizer["Deleted"].Value);
+           
+             await _categoryService.DeleteCategoryAsync(id);
+             return NoContent();
         }
 
 
-        [HttpPut("UpdateAsync/{id}")]
-        public async Task<IActionResult> UpdateAsync(int id,[FromForm] CategoryDto categoryDto)
+        [HttpPut("categories/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateAsync(int id,[FromBody] CategoryDto categoryDto)
         {
-            if(!ModelState.IsValid)
-             return BadRequest(ModelState);
+             if (!ModelState.IsValid)
+             {
+                 return BadRequest(ModelState); 
+             }
 
-            var category = await _category.GetByIdAsync(id);
+             await _categoryService.UpdateCategoryAsync(id,categoryDto);
 
-            if(category is null)
-             return NotFound(_localizer["CategoryIsNotFound"].Value);
-
-             category.Name = categoryDto.Name;
-             category.Description = categoryDto.Description;
-
-             await _category.UpdateAsync(category);
-
-             return Ok(_localizer["Updated"].Value);
+             return Ok(new {Message ="Updated successfully."});
 
         }
 
-        [HttpGet("GetCategoryByIdAsync")]
+        [HttpGet("categories/{categoryId}")]
         public async Task<IActionResult> GetCategoryByIdAsync(int categoryId)
         {
-            var category = await _category.GetByIdAsync(categoryId);
-            if(category is null) return NotFound(_localizer["CategoryIsNotFound"].Value);
-
-            return Ok(category);
+             var category = await _categoryService.GetCategoryAsync(categoryId);
+             return Ok(category);
         }
 
             
-            [HttpGet("GetCategoriesAsync")]
-            // [Authorize]
-            public async Task<IActionResult> GetCategoriesAsync()
-            {
-                return Ok(await _category.GetCategoriesAsync());
-            }
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategoriesAsync()
+        {
+	     var category = await _categoryService.GetCategoriesAsync();
+             return Ok(category);
+        }
 
     }
 }

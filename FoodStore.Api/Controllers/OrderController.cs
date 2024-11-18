@@ -17,67 +17,76 @@ namespace FoodStore.Api.Controllers
     [Authorize(Roles = "Customer,Admin")]
     public class OrderController : ControllerBase
     {
-        private readonly IOrderService _order;
-        private readonly IOrderDetailsService _orderDetails;
+        private readonly IOrderService _orderService;
 
-        private readonly IShoppingCartService _shoppingCart;
-
-
-        public OrderController(IOrderService order,IShoppingCartService shoppingCart,IOrderDetailsService orderDetails)
+        public OrderController(IOrderService orderService)
         {
-            _order = order ;
-            _orderDetails = orderDetails;
-            _shoppingCart = shoppingCart;
+            _orderService = orderService;
+        }
+
+        [HttpPost("orders")]
+        public async Task<IActionResult> AddOrderAsync([FromBody]OrderDto orderDto){
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
+
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _orderService.AddOrderAsync(userId,orderDto);
+
+            return Ok(new {Message ="Added successfully."});
+        }
+
+        [HttpDelete("orders/{orderId}")]
+        public async Task<IActionResult> DeleteOrderAsync(int  orderId){
+
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _orderService.DeleteOrderAsync(userId,orderId);
+
+            return NoContent();
+        }
+
+        [HttpDelete("orders/items/{orderItemId}")]
+        public async Task<IActionResult> DeleteOrderItemAsync(int  orderItemId){
+
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _orderService.DeleteOrderItemAsync(userId,orderItemId);
+
+            return NoContent();
+        }
+
+        [HttpPut("orders/items/{orderItemId}")]
+        public async Task<IActionResult> UpdateOrderAsync(int orderItemId,[FromBody] int quantity)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
+
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _orderService.UpdateOrderAsync(userId,orderItemId,quantity);
+
+            return Ok(new {Message ="Updated successfully."});
+        }
+
+        [HttpGet("orders")]
+        public async Task<IActionResult> GetOrdersAsync()
+        {
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var orders = await _orderService.GetOrdersAsync(userId);
+
+            return Ok(orders);
         }
 
 
-        [HttpPost("Add")]
-        public async Task<IActionResult> AddAsync([FromForm] OrderDto orderDto)
-        {
-            if(!ModelState.IsValid) return BadRequest(ModelState);
-
-            var order = new Order{
-                Address = orderDto.Address,
-                Phone = orderDto.Phone,
-                UserId = HttpContext.User.FindFirstValue("uid"),
-                Total = _shoppingCart.GetShoppingCartTotal(HttpContext.User.FindFirstValue("uid"))
-            };
-
-            await _order.AddAsync(order); 
-            await _orderDetails.AddOrderDetails(order);
-
-            return Ok("Succeeded");
-            
-        }
-
-
-        [HttpDelete("Delete/{orderId}")]
-        public async Task<IActionResult> DeleteAsync(int orderId)
-        {
-            var order = await _order.GetByIdAsync(orderId);
-
-            if(order is null)
-             return NotFound("Not found order");
-
-             await _order.DeleteAsync(order);
-
-             return Ok("Succeeded");
-        }
-
-        [HttpGet("GetOrderByIdAsync")]
-        public async Task<IActionResult> GetOrderByIdAsync(int orderId)
-        {
-            var order = await _order.GetByIdAsync(orderId);
-            if(order is null) return NotFound("Not found order");
-
-            return Ok(order);
-        } 
-
-       [HttpGet("GetOrders")]
-       public async Task<IActionResult> getOrdersAsync()
-       {
-          
-          return Ok( await _order.GetOrders(HttpContext.User.FindFirstValue("uid")) );  
-       }
+   
     }
 }

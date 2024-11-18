@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 
 namespace FoodStore.Data.Entities
 {
-    public class OrderDetail
-    { 
+    public class CartItem
+    {
         public int Id { get; set; }
+        public int Quantity { get; set; }
+        public double Price { get; set; } // unit price
+        public int CartId { get; set; }
+        public Cart Cart { get; set; }
         public int FoodId { get; set; }
         public Food Food { get; set; }
-        public int orderId { get; set; }
-        public Order Order { get; set; }
-        public int Quantity { get; set; }
-        public double UnitPrice { get; set; }
     }
 }

@@ -68,5 +68,20 @@ namespace FoodStore.Service.GenericRepository
         {
             await _context.SaveChangesAsync();
         }
+
+        public Task BeginTransactionAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CommitAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RollBackAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

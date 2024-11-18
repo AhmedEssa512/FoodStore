@@ -2,14 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
 using FoodStore.Service.GenericRepository;
 
 namespace FoodStore.Service.Abstracts
 {
-    public interface ICategoryService : IGenericBase<Category>
+    public interface ICategoryService
     {
-        public Task<List<Category>> GetCategoriesAsync();
-        public Task<bool> IsFoundCategory(int CategoryId);
+        Task AddCategoryAsync(CategoryDto categoryDto);
+        Task DeleteCategoryAsync(int categoryId);
+        Task UpdateCategoryAsync(int categoryId,CategoryDto categoryDto);
+        Task<List<Category>> GetCategoriesAsync();
+        Task<Category> GetCategoryAsync(int categoryId);
+
     }
 }

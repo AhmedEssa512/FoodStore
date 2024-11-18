@@ -7,28 +7,80 @@ using FoodStore.Service.Context;
 using FoodStore.Service.GenericRepository;
 using FoodStore.Service.Abstracts;
 using Microsoft.EntityFrameworkCore;
+using FoodStore.Service.IRepository;
+using FoodStore.Data.DTOS;
+using Microsoft.Extensions.Localization;
+using FoodStore.Service.Exceptions;
 
 namespace FoodStore.Service.Implementations
 {
-    public class CategoryService : GenericBase<Category>, ICategoryService
+    public class CategoryService : ICategoryService
     {
 
 
-        private DbSet<Category> _category;
+        private readonly ICategoryRepository _categoryRepo;
+        private readonly IStringLocalizer<CategoryService> _localizer;
 
-        public CategoryService(ApplicationDbContext context) : base(context)
+        public CategoryService(ICategoryRepository categoryRepo, IStringLocalizer<CategoryService> localizer) 
         {
-            _category = context.Set<Category>();
+            _categoryRepo = categoryRepo;
+            _localizer = localizer;
+        }
+
+        public async Task AddCategoryAsync(CategoryDto categoryDto)
+        {
+            if (string.IsNullOrWhiteSpace(categoryDto.Name))
+                throw new ValidationException("Name cannot be empty.");
+
+            if (string.IsNullOrWhiteSpace(categoryDto.Description))
+                throw new ValidationException("Description cannot be empty.");
+
+            var category = new Category{Name = categoryDto.Name, Description = categoryDto.Description};
+
+            await _categoryRepo.AddAsync(category);
+
+        }
+
+        public async Task DeleteCategoryAsync(int categoryId)
+        {
+            var category = await _categoryRepo.GetByIdAsync(categoryId);
+
+            if(category is null) throw new NotFoundException("Category is not found");
+
+            await _categoryRepo.DeleteAsync(category);
         }
 
         public async Task<List<Category>> GetCategoriesAsync()
         {
-            return await _category.Include(f => f.Foods).ToListAsync();
+           return await _categoryRepo.GetCategoriesAsync();
         }
 
-        public async Task<bool> IsFoundCategory(int CategoryId)
+        public async Task<Category> GetCategoryAsync(int categoryId)
         {
-            return await _category.AnyAsync(c =>c.Id == CategoryId);
+            var category = await _categoryRepo.GetByIdAsync(categoryId);
+
+            if(category is null) throw new NotFoundException("Category is not found");
+
+            return category;
+        }
+
+        public async Task UpdateCategoryAsync(int categoryId, CategoryDto categoryDto)
+        {
+            if (string.IsNullOrWhiteSpace(categoryDto.Name))
+                throw new ValidationException("Name cannot be empty.");
+
+            if (string.IsNullOrWhiteSpace(categoryDto.Description))
+                throw new ValidationException("Description cannot be empty.");
+                
+            var category = await _categoryRepo.GetByIdAsync(categoryId);
+
+            if(category is null) throw new NotFoundException("Category is not found");
+
+            category.Name = categoryDto.Name;
+            category.Description = categoryDto.Description;
+
+            await _categoryRepo.UpdateAsync(category);
+
         }
     }
 }

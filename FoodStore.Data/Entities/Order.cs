@@ -11,22 +11,17 @@ namespace FoodStore.Data.Entities
     public class Order
     {
 
-        public Order()
-        {
-            orderDetails = new List<OrderDetail>();
-        }
-
-
-
         public int Id { get; set; }
         [Required]
         public string Address { get; set; }
         [Required]
         public string Phone { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
         public double Total { get; set; }
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
-        public ICollection<OrderDetail> orderDetails { get; set; }
+        public ICollection<OrderDetail> OrderDetails { get; set; }
 
 
     }

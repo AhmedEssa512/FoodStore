@@ -19,6 +19,8 @@ namespace FoodStore.Service.Context
         public DbSet<Order> orders  { get; set; }
         public DbSet<OrderDetail> orderDetails  { get; set; }
         public DbSet<Cart> carts  { get; set; }
+        public DbSet<CartItem> cartItems  { get; set; }
+
         // public DbSet<RefreshToken> refreshTokens  { get; set; }
 
 

@@ -9,11 +9,6 @@ namespace FoodStore.Data.Entities
     public class Category
     {
 
-        public Category()
-        {
-            Foods = new List<Food>();
-        }
-
         public int Id { get; set; }
         [Required,MaxLength(20),MinLength(3)]
         public string Name { get; set; }

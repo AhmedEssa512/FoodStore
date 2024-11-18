@@ -8,6 +8,8 @@ using FoodStore.Service.Abstracts;
 using FoodStore.Service.Implementations;
 using Microsoft.Extensions.DependencyInjection;
 using FoodStore.Service.Authentication;
+using FoodStore.Service.IRepository;
+using FoodStore.Service.Repository;
 
 namespace FoodStore.Service
 {
@@ -18,11 +20,19 @@ namespace FoodStore.Service
              services.AddTransient(typeof(IGenericBase<>), typeof(GenericBase<>));
              services.AddTransient<ICategoryService,CategoryService>();
              services.AddTransient<IFoodService,FoodService>();
-             services.AddTransient<IShoppingCartService,ShoppingCartService>();
              services.AddTransient<IAuthService,AuthService>();
              services.AddTransient<IOrderService,OrderService>();
-             services.AddTransient<IOrderDetailsService,OrderDetailsService>();
+             services.AddTransient<IOrderRepository,OrderRepository>();
+             services.AddTransient<IOrderDetailsRepository,OrderDetailsRepository>();
+             services.AddTransient<ICartRepository,CartRepository>();
+             services.AddTransient<ICartItemRepository,CartItemRepository>();
+             services.AddTransient<ICartService,CartService>();
              services.AddTransient<IAuthorizationService,AuthorizationService>();
+             services.AddTransient<ICategoryRepository,CategoryRepository>();
+             services.AddTransient<IFoodRepository,FoodRepository>();
+
+
+
              
             return services;
         }

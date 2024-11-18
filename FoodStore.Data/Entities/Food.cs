@@ -14,9 +14,9 @@ namespace FoodStore.Data.Entities
         [Required,MinLength(50)]
         public string Description { get; set; }
         [Required]
-        public double price { get; set; }
+        public double Price { get; set; }
         public byte[] Photo { get; set; }
         public int CategoryId { get; set; }
-        public Category category { get; set; }
+        public Category Category { get; set; }
     }
 }
