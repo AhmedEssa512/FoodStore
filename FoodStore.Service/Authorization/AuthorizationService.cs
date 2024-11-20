@@ -6,6 +6,7 @@ using FoodStore.Data.Entities;
 using FoodStore.Data.DTOS;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using FoodStore.Service.Exceptions;
 
 namespace FoodStore.Service.Authorization
 {
@@ -20,11 +21,11 @@ namespace FoodStore.Service.Authorization
             _userManager = userManager;
         }
 
-        public async Task<string> AddRoleAsync(RoleDto roleDto)
+        public async Task AddRoleAsync(RoleDto roleDto)
         {
 
             if(await IsRoleExistByName(roleDto.Name))
-             return "a role is already exist";
+             throw new ConflictException("Role is already exist");
 
             var identityRole = new IdentityRole();
 
@@ -32,79 +33,77 @@ namespace FoodStore.Service.Authorization
 
              var result = await _roleManager.CreateAsync(identityRole);
 
-             if(result.Succeeded)
-              return "Succeeded";
+             if(! result.Succeeded)
+              throw new OperationFailedException("An error occurred while adding the role.");
 
-             return "Failed";
         }
 
-        public async Task<string> AddUserToRoleAsync(UserRoleDto userRoleDto)
+        public async Task AddUserToRoleAsync(UserRoleDto userRoleDto)
         {
             var user = await _userManager.FindByEmailAsync(userRoleDto.Email);
 
             if(user is null)
-             return "Not found email";
+             throw new NotFoundException("User is not found");
 
             if(! await IsRoleExistByName(userRoleDto.roleName))
-             return "Invaild role";
+             throw new NotFoundException("Role is not found");
 
             if(await _userManager.IsInRoleAsync(user,userRoleDto.roleName))
-             return "User already in this role";
+             throw new ConflictException("User already have this role");
 
              var result = await _userManager.AddToRoleAsync(user,userRoleDto.roleName);
 
-            if(!result.Succeeded) return "Failed";
-
-             return "Succeeded";
-
+             if(! result.Succeeded)
+              throw new OperationFailedException("An error occurred while adding the user to the role.");
         }
 
-        public async Task<string> DeleteRoleAsync(string roleId)
+        public async Task DeleteRoleAsync(string roleId)
         {
             var role = await _roleManager.FindByIdAsync(roleId);
             
-            if(role is null) return "Not found role";
+            if(role is null) throw new NotFoundException("Role is not found");
 
             var result = await _roleManager.DeleteAsync(role);
 
-            if(!result.Succeeded) return "Failed";
+            if(! result.Succeeded)
+              throw new OperationFailedException("An error occurred while removing the role.");
 
-            return "Succeeded";
         }
 
-        public async Task<string> DeleteUserFromRoleAsync(UserRoleDto userRoleDto)
+        public async Task DeleteUserFromRoleAsync(UserRoleDto userRoleDto)
         {
            var user = await _userManager.FindByEmailAsync(userRoleDto.Email);
 
             if(user is null)
-             return "Not found email";
+             throw new NotFoundException("User is not found");;
 
             if(! await IsRoleExistByName(userRoleDto.roleName))
-             return "Invaild role";
+             throw new NotFoundException("Role is not found");;
 
             if(! await _userManager.IsInRoleAsync(user,userRoleDto.roleName))
-             return $"The user does not have {userRoleDto.roleName} role";
+              throw new ConflictException("User does not have this role");
 
              var result = await _userManager.RemoveFromRoleAsync(user,userRoleDto.roleName);
 
-            if(!result.Succeeded) return "Failed";
+             if(! result.Succeeded)
+              throw new OperationFailedException("An error occurred while removing the user from the role.");
 
-             return "Succeeded";
         }
 
-        public async Task<string> UpdateRoleAsync(string roleId, RoleDto roleDto)
+        public async Task UpdateRoleAsync(string roleId, RoleDto roleDto)
         {
             var role = await _roleManager.FindByIdAsync(roleId);
 
-            if(role is null) return "Not found role";
+            if(role is null) throw new NotFoundException("Role is not found");
 
              role.Name = roleDto.Name;
 
              var result =  await _roleManager.UpdateAsync(role);
 
-            if(!result.Succeeded) return "Failed";
-           
-           return "Succeeded";
+            if(! result.Succeeded)
+              throw new OperationFailedException("An error occurred while updating the role.");
+              
+
         }
 
         public async Task<List<IdentityRole>> GetRolesAsync()
@@ -118,7 +117,6 @@ namespace FoodStore.Service.Authorization
 
            if(role is null) return false;
             
-
             return true;
         }
 

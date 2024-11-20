@@ -10,14 +10,14 @@ namespace FoodStore.Service.Authorization
 {
     public interface IAuthorizationService
     {
-        Task<string> AddRoleAsync(RoleDto roleDto);
+        Task AddRoleAsync(RoleDto roleDto);
         Task<List<IdentityRole>> GetRolesAsync();
         Task<bool> IsRoleExistByName(string roleName);
         Task<bool> IsRoleExistById(string roleId);
-        Task<string> UpdateRoleAsync(string roleId,RoleDto roleDto);
-        Task<string> DeleteRoleAsync(string roleId);
-        Task<string> AddUserToRoleAsync(UserRoleDto userRoleDto);
-        Task<string> DeleteUserFromRoleAsync(UserRoleDto userRoleDto);
+        Task UpdateRoleAsync(string roleId,RoleDto roleDto);
+        Task DeleteRoleAsync(string roleId);
+        Task AddUserToRoleAsync(UserRoleDto userRoleDto);
+        Task DeleteUserFromRoleAsync(UserRoleDto userRoleDto);
 
 
 

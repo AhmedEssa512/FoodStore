@@ -33,7 +33,17 @@ namespace FoodStore.Api.Middleware
             }
             catch (ForbiddenException ex)
             {
-                httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await httpContext.Response.WriteAsync($"Error: {ex.Message}");
+            }
+            catch (ConflictException ex)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+                await httpContext.Response.WriteAsync($"Error: {ex.Message}");
+            }
+            catch (OperationFailedException ex)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await httpContext.Response.WriteAsync($"Error: {ex.Message}");
             }
             catch (Exception ex)
