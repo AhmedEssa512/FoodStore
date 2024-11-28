@@ -14,7 +14,7 @@ namespace FoodStore.Data.DTOS
         [Required,MinLength(50)]
         public string Description { get; set; }
         [Required]
-        public double price { get; set; }
+        public double Price { get; set; }
         public IFormFile Photo { get; set; }
         public int CategoryId { get; set; }
 

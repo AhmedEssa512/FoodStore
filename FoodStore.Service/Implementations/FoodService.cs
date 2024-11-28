@@ -16,29 +16,30 @@ namespace FoodStore.Service.Implementations
     public class FoodService : IFoodService
     {
 
-        private readonly IFoodRepository _foodRepo;
-        private readonly ICategoryRepository _categoryRepo;
-        public FoodService(IFoodRepository foodRepo,ICategoryRepository categoryRepo)
+        private readonly IUnitOfWork _unitOfWork;
+        public FoodService(IUnitOfWork unitOfWork)
         {
-            _foodRepo = foodRepo;
-            _categoryRepo = categoryRepo;
+            _unitOfWork = unitOfWork;
         }
         public async Task AddFoodAsync(FoodDto foodDto)
         {
-               if(! await _categoryRepo.AnyCategoryAsync(foodDto.CategoryId) ) 
-                 throw new NotFoundException("Category is not found");
+            if (string.IsNullOrWhiteSpace(foodDto.Name))
+                  throw new ValidationException("Name cannot be empty.");
 
-               if (string.IsNullOrWhiteSpace(foodDto.Name))
-                 throw new ValidationException("Name cannot be empty.");
-
-               if (string.IsNullOrWhiteSpace(foodDto.Description))
+            if (string.IsNullOrWhiteSpace(foodDto.Description))
                   throw new ValidationException("Description cannot be empty.");
 
-                
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                if(! await _unitOfWork.Category.AnyCategoryAsync(foodDto.CategoryId) ) 
+                 throw new NotFoundException("Category is not found");
+     
                var food = new Food{
                    Name = foodDto.Name,
                    Description = foodDto.Description,
-                   Price = foodDto.price,
+                   Price = foodDto.Price,
                    CategoryId = foodDto.CategoryId,
                };
 
@@ -49,43 +50,70 @@ namespace FoodStore.Service.Implementations
                  food.Photo = DataStream.ToArray();
                 }
 
-            await _foodRepo.AddAsync(food);
+                await _unitOfWork.Food.AddAsync(food);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+               
         }
 
         public async Task DeleteFoodAsync(int foodId)
         {
-            var food = await _foodRepo.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
-            await _foodRepo.DeleteAsync(food);
+            var food = await _unitOfWork.Food.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
+            await _unitOfWork.Food.DeleteAsync(food);
         }
 
         public async Task<Food> GetFoodAsync(int foodId)
         {
-            return await _foodRepo.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
+            return await _unitOfWork.Food.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
         }
 
         public async Task<List<Food>> GetFoodsAsync()
         {
-            return await _foodRepo.GetFoodsAsync();
+            return await _unitOfWork.Food.GetFoodsAsync();
         }
 
         public async Task UpdateFoodAsync(int foodId, FoodDto foodDto)
         {
-            var food = await _foodRepo.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
 
-            if(! await _categoryRepo.AnyCategoryAsync(foodDto.CategoryId)) throw new NotFoundException("Category is not found");
+            await _unitOfWork.BeginTransactionAsync();
 
-            food.Name = foodDto.Name;
-            food.Description = foodDto.Description;
-            food.Price = foodDto.price;
-            food.CategoryId = foodDto.CategoryId;
+            try
+            {
+                var food = await _unitOfWork.Food.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
 
-            if(foodDto.Photo is not null){
-                using var  DataStream = new MemoryStream();
-                await foodDto.Photo.CopyToAsync(DataStream);
-                food.Photo = DataStream.ToArray();
+                if(! await _unitOfWork.Category.AnyCategoryAsync(foodDto.CategoryId)) throw new NotFoundException("Category is not found");
+
+                food.Name = foodDto.Name;
+                food.Description = foodDto.Description;
+                food.Price = foodDto.Price;
+                food.CategoryId = foodDto.CategoryId;
+
+                if(foodDto.Photo is not null){
+                    using var  DataStream = new MemoryStream();
+                    await foodDto.Photo.CopyToAsync(DataStream);
+                    food.Photo = DataStream.ToArray();
+                }
+
+                await _unitOfWork.Food.UpdateAsync(food);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch(Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
 
-            await _foodRepo.UpdateAsync(food);
         }
     }
 }

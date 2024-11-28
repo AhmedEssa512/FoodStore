@@ -16,10 +16,7 @@ namespace FoodStore.Service.GenericRepository
         Task UpdateRangeAsync(ICollection<T> entities);
         Task DeleteAsync(T entity);
         Task DeleteRangeAsync(ICollection<T> entities);
-         Task SaveChangesAsync();
-        Task BeginTransactionAsync();
-        Task CommitAsync();
-        Task RollBackAsync();
+
 
 
     }

@@ -30,6 +30,8 @@ namespace FoodStore.Service
              services.AddTransient<IAuthorizationService,AuthorizationService>();
              services.AddTransient<ICategoryRepository,CategoryRepository>();
              services.AddTransient<IFoodRepository,FoodRepository>();
+             services.AddTransient<IUnitOfWork,UnitOfWork>();
+
 
 
 

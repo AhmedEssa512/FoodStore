@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Service;
 using FoodStore.Service.Context;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FoodStore.Service.GenericRepository
 {
@@ -11,6 +12,7 @@ namespace FoodStore.Service.GenericRepository
     {
 
         private readonly ApplicationDbContext _context;
+         private IDbContextTransaction _currentTransaction;
 
         public GenericBase(ApplicationDbContext context)
         {
@@ -69,19 +71,28 @@ namespace FoodStore.Service.GenericRepository
             await _context.SaveChangesAsync();
         }
 
-        public Task BeginTransactionAsync()
+        public async Task BeginTransactionAsync()
         {
-            throw new NotImplementedException();
+            _currentTransaction = await _context.Database.BeginTransactionAsync();
         }
 
-        public Task CommitAsync()
+        public async Task CommitTransactionAsync()
         {
-            throw new NotImplementedException();
+            if (_currentTransaction != null)
+            {
+                await _context.SaveChangesAsync();
+                await _currentTransaction.CommitAsync();
+                _currentTransaction.Dispose();
+            }
         }
 
-        public Task RollBackAsync()
+        public async Task RollbackTransactionAsync()
         {
-            throw new NotImplementedException();
+            if (_currentTransaction != null)
+            {
+                await _currentTransaction.RollbackAsync();
+                _currentTransaction.Dispose();
+            }
         }
     }
 }

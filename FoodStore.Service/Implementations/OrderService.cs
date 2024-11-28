@@ -15,20 +15,16 @@ namespace FoodStore.Service.Implementations
 {
     public class OrderService : IOrderService
     {
-          private readonly IOrderRepository _orderRepo;
-          private readonly ICartRepository _cartRepo;
+        private readonly IUnitOfWork _unitOfWork;
 
-          private readonly IOrderDetailsRepository _orderDetailsRepo;
-
-          public OrderService(IOrderRepository orderRepo,IOrderDetailsRepository orderDetailsRepo,ICartRepository cartRepo)
+          public OrderService(IUnitOfWork unitOfWork)
           {
-            _orderRepo = orderRepo;
-            _orderDetailsRepo = orderDetailsRepo;
-            _cartRepo = cartRepo;
+             _unitOfWork = unitOfWork;
           }
 
         public async Task AddOrderAsync(string userId, OrderDto orderDto)
         {
+
 
             if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
 
@@ -38,84 +34,139 @@ namespace FoodStore.Service.Implementations
             if (string.IsNullOrWhiteSpace(orderDto.Phone))
                 throw new ValidationException("Phone cannot be empty.");
 
-            var cart = await _cartRepo.GetCartWithCartItemsAsync(userId);
+            await _unitOfWork.BeginTransactionAsync();
+           try
+           {
+         
+                var cart = await _unitOfWork.Cart.GetCartWithCartItemsAsync(userId);
 
-            if(cart is null || cart.Items.Count == 0) throw new NotFoundException("You should add item at least to the cart to can make an order");
+                if(cart is null || cart.Items.Count == 0) throw new NotFoundException("You should add item at least to the cart to can make an order");
 
-            if(cart.UserId != userId) throw new ForbiddenException("You do not have permission to create an order");
+                if(cart.UserId != userId) throw new ForbiddenException("You do not have permission to create an order");
 
-            var order = new Order{
-                Address = orderDto.Address,
-                Phone = orderDto.Phone,
-                Total = cart.Total,
-                UserId = userId,
-                OrderDetails = new List<OrderDetail>()
-            };
-            
+                var order = new Order{
+                    Address = orderDto.Address,
+                    Phone = orderDto.Phone,
+                    Total = cart.Total,
+                    UserId = userId,
+                    OrderDetails = []
+                };
+                
 
-            await _orderRepo.AddAsync(order);
-            
-            foreach (var cartItem in cart.Items)
-            {
-                var orderDetail = new OrderDetail{
-                    orderId = order.Id,
+                await _unitOfWork.Order.AddAsync(order);
+                
+                var orderDetails = cart.Items.Select(cartItem => new OrderDetail
+                {
+                    orderId = order.Id, 
                     Quantity = cartItem.Quantity,
                     UnitPrice = cartItem.Price,
-                    FoodId = cartItem.FoodId,    
-                };
+                    FoodId = cartItem.FoodId
+                }).ToList();
 
-                order.OrderDetails.Add(orderDetail);
-            }
-           await _cartRepo.DeleteAsync(cart);
-           await _orderRepo.SaveChangesAsync();
+                await _unitOfWork.OrderDetails.AddRangeAsync(orderDetails);
+
+                await _unitOfWork.Cart.DeleteAsync(cart);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                await _unitOfWork.CommitTransactionAsync();
+         
+           }
+           catch(Exception)
+           {
+               await _unitOfWork.RollbackTransactionAsync();
+               throw;
+           }
+
         }
 
         public async Task DeleteOrderItemAsync(string userId, int orderItemId)
         {
-            var orderItem = await _orderDetailsRepo.GetOrderDetailsWithOrder(orderItemId);
+            if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
 
-            if(orderItem is null) throw new NotFoundException("Order item not found");
+            await _unitOfWork.BeginTransactionAsync();
 
-            if(orderItem.Order.UserId != userId) throw new ForbiddenException("You dont have permsiion");
+            try
+            {
+                var orderItem = await _unitOfWork.OrderDetails.GetOrderDetailsWithOrder(orderItemId) ?? throw new NotFoundException("Order item not found");
+                
+                if (orderItem.Order.UserId != userId) throw new ForbiddenException("You dont have permsiion");
 
-            await _orderDetailsRepo.DeleteAsync(orderItem);
+                await _unitOfWork.OrderDetails.DeleteAsync(orderItem);
 
-            orderItem.Order.Total = orderItem.Order.OrderDetails.Sum(o => o.UnitPrice * o.Quantity);
+                orderItem.Order.Total -= orderItem.UnitPrice * orderItem.Quantity;
 
-            await _orderRepo.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch(Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task DeleteOrderAsync(string userId, int orderId)
         {
-            var order = await _orderRepo.GetOrderWithOrderDetailsAsync(orderId) ?? throw new NotFoundException("Order not found");
-            if (order.UserId != userId) throw new ForbiddenException("You do not have permission to do this operation");
+            if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
 
-            await _orderRepo.DeleteAsync(order);
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var order = await _unitOfWork.Order.GetOrderWithOrderDetailsAsync(orderId) ?? throw new NotFoundException("Order not found");
+                if (order.UserId != userId) throw new ForbiddenException("You do not have permission to do this operation");
+
+                await _unitOfWork.Order.DeleteAsync(order);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch(Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
            
         }
 
         public async Task UpdateOrderAsync(string userId,int orderItemId,int quantity)
         {
+            if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
+
             if(quantity <= 0) throw new ValidationException("Invalid quantity");
 
-            var orderItem = await _orderDetailsRepo.GetOrderDetailsWithOrder(orderItemId);
+            await _unitOfWork.BeginTransactionAsync();
 
-            if(orderItem is null) throw new NotFoundException("Order not found");
+            try
+            {
+                var orderItem = await _unitOfWork.OrderDetails.GetOrderDetailsWithOrder(orderItemId) ?? throw new NotFoundException("Order not found");
+                
+                if (orderItem.Order.UserId != userId) throw new ForbiddenException("do not have permession");
 
-            if(orderItem.Order.UserId != userId) throw new ForbiddenException("do not have permession");
+                orderItem.Quantity = quantity;
 
-            orderItem.Quantity = quantity;
+                await _unitOfWork.OrderDetails.UpdateAsync(orderItem);
 
-            await _orderDetailsRepo.UpdateAsync(orderItem);
+                orderItem.Order.Total = orderItem.Order.OrderDetails.Sum(o => o.UnitPrice * o.Quantity);
 
-            orderItem.Order.Total = orderItem.Order.OrderDetails.Sum(o => o.UnitPrice * o.Quantity);
+                await _unitOfWork.SaveChangesAsync();
 
-            await _orderRepo.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+
+            
         }
 
         public async Task<List<Order>> GetOrdersAsync(string UserId)
         {
-            return await _orderRepo.GetOrdersAsync(UserId);
+            return await _unitOfWork.Order.GetOrdersAsync(UserId);
         }
     }
 }
