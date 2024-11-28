@@ -119,7 +119,7 @@ namespace FoodStore.Service.Implementations
 
         }
 
-        public async Task DeleteCartItemsAsync(string userId, int cartId)
+        public async Task DeleteCartItemsAsync(string userId)
         {
             //get cart Included CartItems
             var cart = await _unitOfWork.Cart.GetCartWithCartItemsAsync(userId);

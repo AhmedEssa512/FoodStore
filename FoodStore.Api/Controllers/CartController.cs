@@ -74,11 +74,11 @@ namespace FoodStore.Api.Controllers
         }
 
          [HttpDelete("items")]
-        public  async Task<IActionResult> DeleteAllItemAsync(int cartId)
+        public  async Task<IActionResult> DeleteAllItemAsync()
         {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                await _cartService.DeleteCartItemsAsync(userId,cartId);
+                await _cartService.DeleteCartItemsAsync(userId);
                 
                 return NoContent();
         }

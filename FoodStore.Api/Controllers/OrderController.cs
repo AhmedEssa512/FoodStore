@@ -60,7 +60,7 @@ namespace FoodStore.Api.Controllers
         }
 
         [HttpPut("orders/items/{orderItemId}")]
-        public async Task<IActionResult> UpdateOrderAsync(int orderItemId,[FromBody] int quantity)
+        public async Task<IActionResult> UpdateOrderItemAsync(int orderItemId,[FromBody] int quantity)
         {
 
             if (!ModelState.IsValid)
