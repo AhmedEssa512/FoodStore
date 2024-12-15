@@ -10,9 +10,9 @@ namespace FoodStore.Data.Entities
     {
 
         public int Id { get; set; }
-        [Required,MaxLength(20),MinLength(3)]
+        [Required,MaxLength(20)]
         public string Name { get; set; }
-        [Required,MinLength(50)]
+        [Required]
         public string Description { get; set; }
         public virtual ICollection<Food> Foods { get; set; }
     }

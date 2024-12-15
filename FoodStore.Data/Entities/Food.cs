@@ -9,9 +9,9 @@ namespace FoodStore.Data.Entities
     public class Food
     {
         public int Id { get; set; }
-        [Required,MaxLength(20),MinLength(3)]
+        [Required,MaxLength(20)]
         public string Name { get; set; }
-        [Required,MinLength(50)]
+        [Required]
         public string Description { get; set; }
         [Required]
         public double Price { get; set; }

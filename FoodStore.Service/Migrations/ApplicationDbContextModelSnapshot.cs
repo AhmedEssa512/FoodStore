@@ -105,7 +105,7 @@ namespace FoodStore.Service.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("carts");
+                    b.ToTable("carts", (string)null);
                 });
 
             modelBuilder.Entity("FoodStore.Data.Entities.CartItem", b =>
@@ -134,7 +134,7 @@ namespace FoodStore.Service.Migrations
 
                     b.HasIndex("FoodId");
 
-                    b.ToTable("cartItems");
+                    b.ToTable("cartItems", (string)null);
                 });
 
             modelBuilder.Entity("FoodStore.Data.Entities.Category", b =>
@@ -156,7 +156,7 @@ namespace FoodStore.Service.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("categories");
+                    b.ToTable("categories", (string)null);
                 });
 
             modelBuilder.Entity("FoodStore.Data.Entities.Food", b =>
@@ -189,7 +189,7 @@ namespace FoodStore.Service.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("foods");
+                    b.ToTable("foods", (string)null);
                 });
 
             modelBuilder.Entity("FoodStore.Data.Entities.Order", b =>
@@ -224,7 +224,7 @@ namespace FoodStore.Service.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("orders");
+                    b.ToTable("orders", (string)null);
                 });
 
             modelBuilder.Entity("FoodStore.Data.Entities.OrderDetail", b =>
@@ -253,7 +253,7 @@ namespace FoodStore.Service.Migrations
 
                     b.HasIndex("orderId");
 
-                    b.ToTable("orderDetails");
+                    b.ToTable("orderDetails", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -391,7 +391,7 @@ namespace FoodStore.Service.Migrations
 
             modelBuilder.Entity("FoodStore.Data.Entities.ApplicationUser", b =>
                 {
-                    b.OwnsMany("FoodStore.Data.Entities.RefreshToken", "RefreshTokens", b1 =>
+                    b.OwnsMany("FoodStore.Data.Entities.ApplicationUser.RefreshTokens#FoodStore.Data.Entities.RefreshToken", "RefreshTokens", b1 =>
                         {
                             b1.Property<string>("ApplicationUserId")
                                 .HasColumnType("nvarchar(450)");
@@ -416,7 +416,7 @@ namespace FoodStore.Service.Migrations
 
                             b1.HasKey("ApplicationUserId", "Id");
 
-                            b1.ToTable("RefreshToken");
+                            b1.ToTable("RefreshToken", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ApplicationUserId");
