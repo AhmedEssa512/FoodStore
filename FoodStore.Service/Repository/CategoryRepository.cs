@@ -25,7 +25,7 @@ namespace FoodStore.Service.Repository
 
         public async Task<List<Category>> GetCategoriesAsync()
         {
-            return await _context.categories.ToListAsync();
+            return await _context.categories.AsNoTracking().ToListAsync();
         }
     }
 }

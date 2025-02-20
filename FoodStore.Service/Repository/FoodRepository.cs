@@ -27,6 +27,7 @@ namespace FoodStore.Service.Repository
         {
            return await _context.foods
            .Include(c => c.Category)
+           .AsNoTracking()
            .ToListAsync();
         }
 
