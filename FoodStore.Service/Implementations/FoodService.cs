@@ -21,7 +21,7 @@ namespace FoodStore.Service.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task AddFoodAsync(FoodDto foodDto)
+        public async Task<Food> AddFoodAsync(FoodDto foodDto)
         {
             if (string.IsNullOrWhiteSpace(foodDto.Name))
                   throw new ValidationException("Name cannot be empty.");
@@ -55,6 +55,8 @@ namespace FoodStore.Service.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 await _unitOfWork.CommitTransactionAsync();
+
+                return food;
             }
             catch (Exception)
             {

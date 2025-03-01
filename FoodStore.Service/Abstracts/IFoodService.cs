@@ -10,7 +10,7 @@ namespace FoodStore.Service.Abstracts
 {
     public interface IFoodService 
     {
-       Task AddFoodAsync(FoodDto foodDto);
+       Task<Food> AddFoodAsync(FoodDto foodDto);
        Task DeleteFoodAsync(int foodId);
        Task UpdateFoodAsync(int foodId,FoodDto foodDto);
        Task<List<Food>> GetFoodsAsync();
