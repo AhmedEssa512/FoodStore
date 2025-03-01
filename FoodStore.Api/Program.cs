@@ -152,6 +152,7 @@ app.UseRequestLocalization(options!.Value);
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAllOrigins");
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 

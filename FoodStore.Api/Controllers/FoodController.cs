@@ -24,9 +24,9 @@ namespace FoodStore.Api.Controllers
         }
 
 
-        [HttpPost("foods")]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddFoodAsync([FromBody]FoodDto foodDto)
+        public async Task<IActionResult> AddFoodAsync([FromForm]FoodDto foodDto)
         {
 
             if (!ModelState.IsValid)
@@ -34,11 +34,27 @@ namespace FoodStore.Api.Controllers
                 return BadRequest(ModelState); 
             }
 
-            await _foodService.AddFoodAsync(foodDto);
+           var food = await _foodService.AddFoodAsync(foodDto);
         
-            return Ok(new {Message ="Added successfully."});
+            return CreatedAtAction(
+                   nameof(GetById),  
+                   new { id = food.Id },  
+                   food  
+                 );
         } 
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var food = await _foodService.GetFoodAsync(id);
+
+            if (food == null)
+            {
+                return NotFound();
+            }
+           
+            return Ok(food);
+        }
 
         [HttpDelete("foods/{foodId}")]
         [Authorize(Roles = "Admin")]
@@ -64,13 +80,6 @@ namespace FoodStore.Api.Controllers
             return Ok(new {Message ="Updated successfully."});
         }
 
-        [HttpGet("foods/{foodId}")]
-        public async Task<IActionResult> GetFoodByIdAsync(int foodId)
-        {
-            var food = await _foodService.GetFoodAsync(foodId);
-           
-            return Ok(food);
-        }
 
         [HttpGet("foods")]
         public async Task<IActionResult> GetFoodsAsync()
