@@ -9,10 +9,12 @@ namespace FoodStore.Api.Middleware
     public class GlobalExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
 
-        public GlobalExceptionHandlerMiddleware(RequestDelegate next)
+        public GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext httpContext)
@@ -48,9 +50,9 @@ namespace FoodStore.Api.Middleware
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unexpected error occurred: {Message}", ex.Message);
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await httpContext.Response.WriteAsync("Unexpected error occured");
-                // Console.WriteLine(ex);
             }
         }
     }
