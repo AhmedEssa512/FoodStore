@@ -13,7 +13,7 @@ namespace FoodStore.Service.Abstracts
        Task<Food> AddFoodAsync(FoodDto foodDto);
        Task DeleteFoodAsync(int foodId);
        Task UpdateFoodAsync(int foodId,FoodDto foodDto);
-       Task<List<Food>> GetFoodsAsync();
+       Task<IEnumerable<Food>> GetFoodsAsync(PaginationParams paginationParams);
        Task<Food> GetFoodAsync(int foodId);
 
     }

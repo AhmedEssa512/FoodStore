@@ -77,9 +77,9 @@ namespace FoodStore.Service.Implementations
             return await _unitOfWork.Food.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
         }
 
-        public async Task<List<Food>> GetFoodsAsync()
+        public async Task<IEnumerable<Food>> GetFoodsAsync(PaginationParams paginationParams)
         {
-            return await _unitOfWork.Food.GetFoodsAsync();
+            return await _unitOfWork.Food.GetPaginatedFoods(paginationParams);
         }
 
         public async Task UpdateFoodAsync(int foodId, FoodDto foodDto)

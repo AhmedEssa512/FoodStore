@@ -98,7 +98,7 @@ namespace FoodStore.Service.Implementations
                 await _unitOfWork.BeginTransactionAsync();
                 
             try{
-                var cartItem = await _unitOfWork.CartItem.GetCartItemWithCartAsync(cartItemId) ?? throw new Exception("Cart item not found");
+                var cartItem = await _unitOfWork.CartItem.GetCartItemWithCartAsync(cartItemId) ?? throw new NotFoundException("Cart item not found");
 
                 // Verify ownership of the cart
                 if (cartItem.Cart.UserId != userId ) throw new ForbiddenException("You do not have permission to update this cart item");

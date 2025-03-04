@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
 using FoodStore.Service.Context;
 using FoodStore.Service.GenericRepository;
@@ -23,12 +24,12 @@ namespace FoodStore.Service.Repository
             return await _context.foods.AnyAsync(f => f.Id == foodId);
         }
 
-        public async Task<List<Food>> GetFoodsAsync()
+        public async Task<IEnumerable<Food>> GetPaginatedFoods(PaginationParams paginationParams)
         {
-           return await _context.foods
-           .Include(c => c.Category)
-           .AsNoTracking()
-           .ToListAsync();
+            return await _context.foods
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
         }
 
         public async Task<double> GetPriceAsync(int foodId)

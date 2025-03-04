@@ -82,9 +82,9 @@ namespace FoodStore.Api.Controllers
 
 
         [HttpGet("foods")]
-        public async Task<IActionResult> GetFoodsAsync()
+        public async Task<IActionResult> GetFoodsAsync([FromQuery]PaginationParams paginationParams)
         {
-            return Ok(await _foodService.GetFoodsAsync());
+            return Ok(await _foodService.GetFoodsAsync(paginationParams));
         }
 
 
