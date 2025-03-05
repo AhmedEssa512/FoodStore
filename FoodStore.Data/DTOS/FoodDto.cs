@@ -11,7 +11,7 @@ namespace FoodStore.Data.DTOS
     {
         [Required,MaxLength(20),MinLength(3)]
         public string Name { get; set; }
-        [Required,MinLength(50)]
+        [Required,MinLength(20)]
         public string Description { get; set; }
         [Required]
         public double Price { get; set; }

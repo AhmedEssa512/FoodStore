@@ -34,7 +34,7 @@ namespace FoodStore.Api.Controllers
                 return BadRequest(ModelState); 
             }
 
-           var food = await _foodService.AddFoodAsync(foodDto);
+           var food = await _foodService.CreateFoodAsync(foodDto);
         
             return CreatedAtAction(
                    nameof(GetById),  
@@ -68,7 +68,7 @@ namespace FoodStore.Api.Controllers
 
         [HttpPut("foods/{foodId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateAsync(int foodId,[FromBody]FoodDto foodDto)
+        public async Task<IActionResult> UpdateAsync(int foodId,[FromForm]FoodDto foodDto)
         {       
             if (!ModelState.IsValid)
             {

@@ -15,7 +15,7 @@ namespace FoodStore.Data.Entities
         public string Description { get; set; }
         [Required]
         public double Price { get; set; }
-        public byte[] Photo { get; set; }
+        public string ImageUrl { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
     }

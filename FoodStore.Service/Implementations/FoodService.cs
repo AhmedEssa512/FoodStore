@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using FoodStore.Data.DTOS;
 using FoodStore.Service.IRepository;
 using FoodStore.Service.Exceptions;
+using Microsoft.AspNetCore.Http;
 
 namespace FoodStore.Service.Implementations
 {
@@ -21,7 +22,7 @@ namespace FoodStore.Service.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<Food> AddFoodAsync(FoodDto foodDto)
+        public async Task<Food> CreateFoodAsync(FoodDto foodDto)
         {
             if (string.IsNullOrWhiteSpace(foodDto.Name))
                   throw new ValidationException("Name cannot be empty.");
@@ -35,20 +36,20 @@ namespace FoodStore.Service.Implementations
             {
                 if(! await _unitOfWork.Category.AnyCategoryAsync(foodDto.CategoryId) ) 
                  throw new NotFoundException("Category is not found");
+
+                string imageFilePath = null;
+                if (foodDto.Photo != null && foodDto.Photo.Length > 0)
+                {
+                    imageFilePath = await SaveImageAsync(foodDto.Photo); 
+                }
      
                var food = new Food{
                    Name = foodDto.Name,
                    Description = foodDto.Description,
                    Price = foodDto.Price,
                    CategoryId = foodDto.CategoryId,
+                   ImageUrl = imageFilePath
                };
-
-               if(foodDto.Photo is not null)
-                {
-                 using var  DataStream = new MemoryStream();
-                 await foodDto.Photo.CopyToAsync(DataStream);
-                 food.Photo = DataStream.ToArray();
-                }
 
                 await _unitOfWork.Food.AddAsync(food);
 
@@ -66,10 +67,81 @@ namespace FoodStore.Service.Implementations
                
         }
 
+        public async Task<string> SaveImageAsync(IFormFile image)
+        {
+
+            // Generate a unique file name for the image
+            string imageFileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+
+            // Define the path to save the image (wwwroot/images folder)
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", imageFileName);
+
+            // Ensure the directory exists
+            var imageDirectory = Path.GetDirectoryName(imagePath);
+            if (!Directory.Exists(imageDirectory))
+            {
+                Directory.CreateDirectory(imageDirectory);
+            }
+
+            // Save the image asynchronously to the file system
+            using (var fileStream = new FileStream(imagePath, FileMode.Create))
+            {
+                await image.CopyToAsync(fileStream);
+            }
+
+            // Return the relative image file path 
+            return $"images/{imageFileName}";
+        }
+
+        public void DeleteImageAsync(string imagePath)
+        {
+           if(! string.IsNullOrWhiteSpace(imagePath))
+           {
+                // Combine the relative path with the root directory of the application (wwwroot)
+                string fullPath =  Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath);
+
+                // Check if the file exists
+                if (File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);                  
+                }
+                else
+                {
+                    // If the file doesn't exist, you can log it or throw an exception if needed
+                    throw new NotFoundException($"File not found: {imagePath}");
+                }
+           }
+        
+        }
+
+
         public async Task DeleteFoodAsync(int foodId)
         {
             var food = await _unitOfWork.Food.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
-            await _unitOfWork.Food.DeleteAsync(food);
+
+             await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                // Delete the associated image if it exists
+                if (!string.IsNullOrWhiteSpace(food.ImageUrl))
+                {
+                    DeleteImageAsync(food.ImageUrl); 
+                }
+
+                // Delete the food item from the database
+                await _unitOfWork.Food.DeleteAsync(food);
+                await _unitOfWork.SaveChangesAsync(); 
+
+                // Commit the transaction if everything succeeds
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+
         }
 
         public async Task<Food> GetFoodAsync(int foodId)
@@ -98,11 +170,17 @@ namespace FoodStore.Service.Implementations
                 food.Price = foodDto.Price;
                 food.CategoryId = foodDto.CategoryId;
 
-                if(foodDto.Photo is not null){
-                    using var  DataStream = new MemoryStream();
-                    await foodDto.Photo.CopyToAsync(DataStream);
-                    food.Photo = DataStream.ToArray();
-                }
+            string oldImageUrl = food.ImageUrl;
+
+            if(foodDto.Photo != null && foodDto.Photo.Length > 0)
+            {
+                string newImageUrl = await SaveImageAsync(foodDto.Photo);
+
+                food.ImageUrl = newImageUrl;
+
+                // Deleting old image from file sytsem
+                DeleteImageAsync(oldImageUrl);
+            }
 
                 await _unitOfWork.Food.UpdateAsync(food);
 
