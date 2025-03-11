@@ -11,6 +11,7 @@ using FoodStore.Data.DTOS;
 using FoodStore.Service.IRepository;
 using FoodStore.Service.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FoodStore.Service.Implementations
 {
@@ -18,9 +19,11 @@ namespace FoodStore.Service.Implementations
     {
 
         private readonly IUnitOfWork _unitOfWork;
-        public FoodService(IUnitOfWork unitOfWork)
+        private readonly IMemoryCache _memoryCache;
+        public FoodService(IUnitOfWork unitOfWork, IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
+            _memoryCache = memoryCache;
         }
         public async Task<Food> CreateFoodAsync(FoodDto foodDto)
         {
@@ -151,7 +154,22 @@ namespace FoodStore.Service.Implementations
 
         public async Task<IEnumerable<Food>> GetFoodsAsync(PaginationParams paginationParams)
         {
-            return await _unitOfWork.Food.GetPaginatedFoods(paginationParams);
+            // Generate a cache key based on the pagination params
+            string cacheKey = $"Foods_Page_{paginationParams.PageNumber}_Size_{paginationParams.PageSize}";
+
+            if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<Food> foods))
+            {
+                foods = await _unitOfWork.Food.GetPaginatedFoods(paginationParams);
+ 
+                // Cache the result with a sliding expiration of 10 minutes
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(10));
+
+                // Store the data in the cache
+                _memoryCache.Set(cacheKey, foods, cacheEntryOptions);
+            }
+
+            return foods;
         }
 
         public async Task UpdateFoodAsync(int foodId, FoodDto foodDto)
