@@ -22,14 +22,8 @@ namespace FoodStore.Service
              services.AddTransient<IFoodService,FoodService>();
              services.AddTransient<IAuthService,AuthService>();
              services.AddTransient<IOrderService,OrderService>();
-             services.AddTransient<IOrderRepository,OrderRepository>();
-             services.AddTransient<IOrderDetailsRepository,OrderDetailsRepository>();
-             services.AddTransient<ICartRepository,CartRepository>();
-             services.AddTransient<ICartItemRepository,CartItemRepository>();
              services.AddTransient<ICartService,CartService>();
              services.AddTransient<IAuthorizationService,AuthorizationService>();
-             services.AddTransient<ICategoryRepository,CategoryRepository>();
-             services.AddTransient<IFoodRepository,FoodRepository>();
              services.AddTransient<IUnitOfWork,UnitOfWork>();
 
 

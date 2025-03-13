@@ -9,31 +9,27 @@ namespace FoodStore.Service.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
+    private readonly ApplicationDbContext _context;
 
-        private readonly ApplicationDbContext _context;
-        public  IFoodRepository Food { get; }
-        public  ICategoryRepository Category {get;}
-        public IOrderRepository Order { get; }
-        public IOrderDetailsRepository OrderDetails {get;}
-        public ICartRepository Cart {get;}
-        public ICartItemRepository CartItem {get;}
+    private IFoodRepository _foodRepository;
+    private ICategoryRepository _categoryRepository;
+    private IOrderRepository _orderRepository;
+    private IOrderDetailsRepository _orderDetailsRepository;
+    private ICartRepository _cartRepository;
+    private ICartItemRepository _cartItemRepository;
 
-         public UnitOfWork(ApplicationDbContext context,
-                      IFoodRepository foodRepository,
-                      ICategoryRepository categoryRepository,
-                      IOrderRepository orderRepository,
-                      IOrderDetailsRepository orderDetailsRepository,
-                      ICartRepository cartRepository,
-                      ICartItemRepository cartItemRepository)
-                {
-                    _context = context ;
-                    Food = foodRepository ;
-                    Category = categoryRepository;
-                    Order = orderRepository;
-                    OrderDetails = orderDetailsRepository;
-                    Cart = cartRepository;
-                    CartItem = cartItemRepository;
-                }
+    // Expose repositories as properties
+    public IFoodRepository Food => _foodRepository ??= new FoodRepository(_context);
+    public ICategoryRepository Category => _categoryRepository ??= new CategoryRepository(_context);
+    public IOrderRepository Order => _orderRepository ??= new OrderRepository(_context);
+    public IOrderDetailsRepository OrderDetails => _orderDetailsRepository ??= new OrderDetailsRepository(_context);
+    public ICartRepository Cart => _cartRepository ??= new CartRepository(_context);
+    public ICartItemRepository CartItem => _cartItemRepository ??= new CartItemRepository(_context);
+
+    public UnitOfWork(ApplicationDbContext context)
+    {
+        _context = context;
+    }
 
 
 
