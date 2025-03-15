@@ -18,13 +18,14 @@ namespace FoodStore.Service
          public static IServiceCollection AddServiceDependencies(this IServiceCollection services, Microsoft.Extensions.Configuration.ConfigurationManager configuration)
         {
              services.AddTransient(typeof(IGenericBase<>), typeof(GenericBase<>));
-             services.AddTransient<ICategoryService,CategoryService>();
-             services.AddTransient<IFoodService,FoodService>();
-             services.AddTransient<IAuthService,AuthService>();
-             services.AddTransient<IOrderService,OrderService>();
-             services.AddTransient<ICartService,CartService>();
-             services.AddTransient<IAuthorizationService,AuthorizationService>();
-             services.AddTransient<IUnitOfWork,UnitOfWork>();
+
+             services.AddScoped<ICategoryService,CategoryService>();
+             services.AddScoped<IFoodService,FoodService>();
+             services.AddScoped<IAuthService,AuthService>();
+             services.AddScoped<IOrderService,OrderService>();
+             services.AddScoped<ICartService,CartService>();
+             services.AddScoped<IAuthorizationService,AuthorizationService>();
+             services.AddScoped<IUnitOfWork,UnitOfWork>();
 
 
 
