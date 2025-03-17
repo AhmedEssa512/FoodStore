@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
-using FoodStore.Service.GenericRepository;
+
 
 namespace FoodStore.Service.Abstracts
 {

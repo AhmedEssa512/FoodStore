@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FoodStore.Service.Authorization;
-using FoodStore.Service.GenericRepository;
+using FoodStore.Data.GenericRepository;
 using FoodStore.Service.Abstracts;
 using FoodStore.Service.Implementations;
-using Microsoft.Extensions.DependencyInjection;
 using FoodStore.Service.Authentication;
-using FoodStore.Service.IRepository;
-using FoodStore.Service.Repository;
+using Microsoft.Extensions.DependencyInjection;
+using FoodStore.Data.IRepository;
+using FoodStore.Data.Repository;
 
 namespace FoodStore.Service
 {

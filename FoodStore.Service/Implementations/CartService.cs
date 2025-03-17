@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
 using FoodStore.Service.Abstracts;
-using FoodStore.Service.Context;
+using FoodStore.Data.Context;
 using FoodStore.Service.Exceptions;
-using FoodStore.Service.GenericRepository;
-using FoodStore.Service.IRepository;
+using FoodStore.Data.GenericRepository;
+using FoodStore.Data.IRepository;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodStore.Service.Implementations
@@ -25,17 +25,20 @@ namespace FoodStore.Service.Implementations
         public async Task AddToCartAsync(string userId,CartItemDto cartItemDto)
         {
             
-               if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
+                if(string.IsNullOrWhiteSpace(userId))  
+                 throw new ValidationException("User Id can not be empty.");
+
+                var foodExists = await _unitOfWork.Food.AnyFoodAsync(cartItemDto.FoodId);
+                if (!foodExists)
+                 throw new NotFoundException($"Food item does not exist.");
+
+                if(cartItemDto.quantity <= 0) 
+                 throw new ValidationException("Invalid quantity number");
 
                 await _unitOfWork.BeginTransactionAsync();
 
           try{
-                var foodExists = await _unitOfWork.Food.AnyFoodAsync(cartItemDto.FoodId);
-
-                if (!foodExists) throw new NotFoundException($"Food item does not exist.");
-                  
-               if(cartItemDto.quantity <= 0) throw new ValidationException("Invalid quantity number");
-
+                
                  // Retrieve the cart or create a new one if it doesn't exist
                 var cart = await _unitOfWork.Cart.GetCartWithCartItemsAsync(userId) ?? new Cart{UserId = userId, Items = []};
 

@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
 using FoodStore.Service.Abstracts;
-using FoodStore.Service.Context;
+using FoodStore.Data.Context;
 using FoodStore.Service.Exceptions;
-using FoodStore.Service.GenericRepository;
-using FoodStore.Service.IRepository;
+using FoodStore.Data.IRepository;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodStore.Service.Implementations
