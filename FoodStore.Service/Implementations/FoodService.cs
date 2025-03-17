@@ -213,5 +213,34 @@ namespace FoodStore.Service.Implementations
             }
 
         }
+
+        public async Task<IReadOnlyList<Food>> SearchFoodsAsync(string searchQuery, PaginationParams paginationParams)
+        {
+            // Validate the search query to avoid unnecessary database calls
+            if (string.IsNullOrWhiteSpace(searchQuery))
+            {
+                return new List<Food>().AsReadOnly(); 
+            }
+
+            string cacheKey = $"Foods_Search_{searchQuery.Trim().ToLower()}_Page_{paginationParams.PageNumber}_Size_{paginationParams.PageSize}";
+
+
+            if (!_memoryCache.TryGetValue(cacheKey, out IReadOnlyList<Food> foods))
+            {
+
+                var foodList = await _unitOfWork.Food.SearchFoodsInDatabaseAsync(searchQuery, paginationParams);
+
+                foods = foodList;
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(10));
+
+                _memoryCache.Set(cacheKey, foods, cacheEntryOptions);
+            }
+
+            return foods;
+        }
+
+
     }
 }

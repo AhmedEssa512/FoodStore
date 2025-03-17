@@ -39,5 +39,26 @@ namespace FoodStore.Service.Repository
             .Select(f => f.Price)
             .FirstOrDefaultAsync();
         }
+
+        public async Task<IReadOnlyList<Food>> SearchFoodsInDatabaseAsync(string searchQuery, PaginationParams paginationParams)
+        {
+            // Normalize the search query to handle case-insensitivity and trimming
+            string normalizedQuery = searchQuery.Trim().ToLower();
+
+            var query = _context.foods.AsQueryable();
+
+
+            if (!string.IsNullOrWhiteSpace(normalizedQuery))
+            {
+                query = query.Where(f => f.Name.Contains(normalizedQuery) || f.Description.Contains(normalizedQuery));
+            }
+        
+            var paginatedFoods = await query
+                .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
+                .ToListAsync();
+
+            return paginatedFoods;
+        }
     }
 }

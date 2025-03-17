@@ -13,5 +13,6 @@ namespace FoodStore.Service.IRepository
         Task<bool> AnyFoodAsync(int foodId);
         Task<double> GetPriceAsync(int foodId);
         Task<IEnumerable<Food>> GetPaginatedFoods(PaginationParams paginationParams);
+        Task<IReadOnlyList<Food>> SearchFoodsInDatabaseAsync(string searchQuery, PaginationParams paginationParams);
     }
 }

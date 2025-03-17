@@ -26,7 +26,7 @@ namespace FoodStore.Api.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddFoodAsync([FromForm]FoodDto foodDto)
+        public async Task<IActionResult> Create([FromForm]FoodDto foodDto)
         {
 
             if (!ModelState.IsValid)
@@ -58,7 +58,7 @@ namespace FoodStore.Api.Controllers
 
         [HttpDelete("foods/{foodId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteAsync(int foodId) 
+        public async Task<IActionResult> Delete(int foodId) 
         {
              await _foodService.DeleteFoodAsync(foodId);
 
@@ -68,7 +68,7 @@ namespace FoodStore.Api.Controllers
 
         [HttpPut("foods/{foodId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateAsync(int foodId,[FromForm]FoodDto foodDto)
+        public async Task<IActionResult> Update(int foodId,[FromForm]FoodDto foodDto)
         {       
             if (!ModelState.IsValid)
             {
@@ -82,10 +82,18 @@ namespace FoodStore.Api.Controllers
 
 
         [HttpGet("foods")]
-        public async Task<IActionResult> GetFoodsAsync([FromQuery]PaginationParams paginationParams)
+        public async Task<IActionResult> GetFoods([FromQuery]PaginationParams paginationParams)
         {
             return Ok(await _foodService.GetFoodsAsync(paginationParams));
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(string query,[FromQuery]PaginationParams paginationParams)
+        {
+            var data = await _foodService.SearchFoodsAsync(query,paginationParams);
+            
+            return Ok(data);
+        }        
 
 
 

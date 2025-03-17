@@ -18,6 +18,7 @@ namespace FoodStore.Service.Abstracts
        Task<Food> GetFoodAsync(int foodId);
        Task<string> SaveImageAsync(IFormFile image);
        void DeleteImageAsync(string imagePath);
+       Task<IReadOnlyList<Food>> SearchFoodsAsync(string searchQuery, PaginationParams paginationParams);
 
     }
 }
