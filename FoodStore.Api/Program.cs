@@ -151,8 +151,9 @@ if (app.Environment.IsDevelopment())
 var options = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
 app.UseRequestLocalization(options!.Value);
 
-app.UseHttpsRedirection();
 app.UseCors("AllowAllOrigins");
+app.UseHttpsRedirection();
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
