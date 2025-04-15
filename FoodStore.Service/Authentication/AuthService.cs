@@ -236,7 +236,7 @@ namespace FoodStore.Service.Authentication
 
 
 
-         private RefreshToken GenerateRefreshToken()
+        private RefreshToken GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
 

@@ -149,6 +149,7 @@ if (app.Environment.IsDevelopment())
 }
 
 var options = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
+app.UseStaticFiles();
 app.UseRequestLocalization(options!.Value);
 
 app.UseCors("AllowAllOrigins");

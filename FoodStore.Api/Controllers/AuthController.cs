@@ -34,7 +34,7 @@ namespace FoodStore.Api.Controllers
               var result = await _authservice.RegisterAsync(userDto);
 
             if(!result.IsAuthenticated)
-               return BadRequest(result.Message);
+               return Unauthorized(new { message = result.Message });
 
 
                SetRefreshTokenInCookie(result.RefreshToken,result.RefreshTokenExpiration);
@@ -53,13 +53,12 @@ namespace FoodStore.Api.Controllers
                 var result = await _authservice.LoggInAsync(userDto);
 
             if(!result.IsAuthenticated)
-               return BadRequest(result.Message);
+               return Unauthorized(new { message = result.Message });
 
             if(! string.IsNullOrEmpty(result.RefreshToken))
                 SetRefreshTokenInCookie(result.RefreshToken,result.RefreshTokenExpiration);
 
-
-               return Ok(result);
+            return Ok(result);
         }
 
         [HttpGet("refresh-token")]
@@ -70,7 +69,7 @@ namespace FoodStore.Api.Controllers
             var result = await _authservice.RefreshTokenAsync(refreshToken);
 
             if (!result.IsAuthenticated)
-                return BadRequest(result);
+                return Unauthorized(result);
 
             SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
 
@@ -99,7 +98,7 @@ namespace FoodStore.Api.Controllers
         {
             var cookieOptions = new CookieOptions
             {
-                 HttpOnly = true,
+                HttpOnly = true,
                 Expires = expires.ToLocalTime(),
                 Secure = true,
                 IsEssential = true,
