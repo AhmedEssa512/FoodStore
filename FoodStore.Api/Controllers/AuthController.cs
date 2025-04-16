@@ -78,7 +78,7 @@ namespace FoodStore.Api.Controllers
 
 
 
-         [HttpPost("revoke-token")]
+        [HttpPost("revoke-token")]
         public async Task<IActionResult> RevokeToken([FromBody] RevokeToken dto)
         {
             var token = dto.Token ?? Request.Cookies["refreshToken"];
@@ -91,6 +91,7 @@ namespace FoodStore.Api.Controllers
             if(!result)
                 return BadRequest("Token is invalid!");
 
+            Response.Cookies.Delete("refreshToken");
             return Ok();
         }
 
