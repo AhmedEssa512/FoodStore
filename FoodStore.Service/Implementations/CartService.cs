@@ -174,6 +174,71 @@ namespace FoodStore.Service.Implementations
 
         }
 
+        public async Task MergeCartAsync(string userId, List<CartItemDto> guestItems)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ValidationException("User Id cannot be empty.");
+
+            if (guestItems == null || guestItems.Count == 0)
+                return; // Nothing to merge
+
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                // Retrieve user's existing cart or create new one
+                var cart = await _unitOfWork.Cart.GetCartWithCartItemsAsync(userId) 
+                        ?? new Cart { UserId = userId, Items = new List<CartItem>() };
+
+                if (cart.Id == 0)
+                    await _unitOfWork.Cart.AddAsync(cart);
+
+                foreach (var guestItem in guestItems)
+                {
+                    if (guestItem.quantity <= 0)
+                        continue; 
+
+                    var foodExists = await _unitOfWork.Food.AnyFoodAsync(guestItem.FoodId);
+                    if (!foodExists)
+                        continue; 
+
+                    var price = await _unitOfWork.Food.GetPriceAsync(guestItem.FoodId);
+                    if (price <= 0)
+                        continue;
+
+                    // Check if item exists in the cart
+                    var existingItem = cart.Items.FirstOrDefault(i => i.FoodId == guestItem.FoodId);
+                    if (existingItem != null)
+                    {
+                        existingItem.Quantity += guestItem.quantity;
+                    }
+                    else
+                    {
+                        // Add new item
+                        cart.Items.Add(new CartItem
+                        {
+                            FoodId = guestItem.FoodId,
+                            Quantity = guestItem.quantity,
+                            Price = price,
+                            CartId = cart.Id
+                        });
+                    }
+                }
+
+                // Recalculate total
+                cart.Total = cart.Items.Sum(i => i.Price * i.Quantity);
+
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+
        
  
     }

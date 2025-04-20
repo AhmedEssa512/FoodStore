@@ -33,7 +33,6 @@ namespace FoodStore.Api.Controllers
                   string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
                   await _cartService.AddToCartAsync(userId,cartItemDto);
-
                   return Ok(new {Message ="Added successfully."});
         }
 
@@ -58,7 +57,6 @@ namespace FoodStore.Api.Controllers
                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
                await _cartService.UpdateCartItemAsync(userId,cartItemId,quantity);
-
                return Ok(new {Message ="Updated successfully."});
         }
 
@@ -69,19 +67,27 @@ namespace FoodStore.Api.Controllers
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
                 await _cartService.DeleteCartItemAsync(userId,cartItemId);
- 
                 return NoContent();;     
         }
 
-         [HttpDelete("items")]
+        [HttpDelete("items")]
         public  async Task<IActionResult> DeleteAllItemAsync()
         {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 await _cartService.DeleteCartItemsAsync(userId);
-                
                 return NoContent();
         }
+
+        [HttpPost("merge")]
+        [Authorize]
+        public async Task<IActionResult> MergeCart([FromBody] List<CartItemDto> items)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _cartService.MergeCartAsync(userId, items);
+            return Ok();
+        }
+
 
     }
 }

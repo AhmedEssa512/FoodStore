@@ -15,6 +15,7 @@ namespace FoodStore.Service.Abstracts
         Task DeleteCartItemAsync(string userId,int cartItemId);
         Task DeleteCartItemsAsync(string userId);
         Task<Cart> GetCartItemsAsync(string userId);
+        Task MergeCartAsync(string userId, List<CartItemDto> guestItems);
         
     }
 }
