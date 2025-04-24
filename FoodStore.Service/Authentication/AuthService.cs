@@ -35,7 +35,7 @@ namespace FoodStore.Service.Authentication
 
 
 
-        public async  Task<AuthDto> LoggInAsync(LogInDto userDto)
+        public async  Task<AuthDto> LogInAsync(LogInDto userDto)
         {
            
             var user = await _usermanager.FindByEmailAsync(userDto.Email);
@@ -56,7 +56,7 @@ namespace FoodStore.Service.Authentication
             authDto.Token = new JwtSecurityTokenHandler().WriteToken(token);
             authDto.ExpiresOn = token.ValidTo;
 
-
+Console.WriteLine($"authDto.ExpiresOn: {authDto.ExpiresOn}");
             if(user.RefreshTokens.Any(t => t.IsActive) )
             {
                 var refreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);
@@ -168,6 +168,7 @@ namespace FoodStore.Service.Authentication
             authDto.Roles = roles.ToList();
             authDto.RefreshToken = newRefreshToken.Token; 
             authDto.RefreshTokenExpiration = newRefreshToken.ExpiresOn; 
+            authDto.ExpiresOn = jwtToken.ValidTo;
 
             return authDto;
         }
@@ -225,7 +226,7 @@ namespace FoodStore.Service.Authentication
             issuer: _configuration["JWT:Issuer"],
             audience: _configuration["JWT:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddDays(int.Parse(_configuration["JWT:DurationInDays"])),
+            expires: DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JWT:DurationInMinutes"])),
             signingCredentials: signingCredentials);
 
         return jwtSecurityToken;

@@ -46,7 +46,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             })
                 .AddJwtBearer(o =>
                 {
-                    o.RequireHttpsMetadata = false;
+                    o.RequireHttpsMetadata = true;
                     o.SaveToken = false;
                     o.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -57,6 +57,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                         ValidIssuer = jwtSettings!.Issuer,
                         ValidAudience = jwtSettings!.Audience,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings!.Key))
+                    };
+
+                    o.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Cookies["access_token"]; 
+                            if (!string.IsNullOrEmpty(accessToken))
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
                     };
                 });
 

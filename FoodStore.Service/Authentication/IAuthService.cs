@@ -9,7 +9,7 @@ namespace FoodStore.Service.Authentication
     public interface IAuthService
     {
         Task<AuthDto> RegisterAsync(UserDto userDto);
-        Task<AuthDto> LoggInAsync(LogInDto userDto);
+        Task<AuthDto> LogInAsync(LogInDto userDto);
         Task<AuthDto> RefreshTokenAsync(string refreshToken);
         Task<bool> RevokeTokenAsync(string refreshToken);
 

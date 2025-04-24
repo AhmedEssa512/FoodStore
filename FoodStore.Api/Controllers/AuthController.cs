@@ -36,9 +36,11 @@ namespace FoodStore.Api.Controllers
             if(!result.IsAuthenticated)
                return Unauthorized(new { message = result.Message });
 
+            if(!string.IsNullOrEmpty(result.Token))
+               SetAccessTokenInCookie(result.Token, result.ExpiresOn);
 
+            if(!string.IsNullOrEmpty(result.RefreshToken))
                SetRefreshTokenInCookie(result.RefreshToken,result.RefreshTokenExpiration);
-
 
                return Ok(result);
         }
@@ -50,13 +52,16 @@ namespace FoodStore.Api.Controllers
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-                var result = await _authservice.LoggInAsync(userDto);
+                var result = await _authservice.LogInAsync(userDto);
 
             if(!result.IsAuthenticated)
                return Unauthorized(new { message = result.Message });
 
-            if(! string.IsNullOrEmpty(result.RefreshToken))
+            if(!string.IsNullOrEmpty(result.RefreshToken))
                 SetRefreshTokenInCookie(result.RefreshToken,result.RefreshTokenExpiration);
+
+            if(!string.IsNullOrEmpty(result.Token))
+            SetAccessTokenInCookie(result.Token, result.ExpiresOn);
 
             return Ok(result);
         }
@@ -64,15 +69,19 @@ namespace FoodStore.Api.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
+            var refreshToken = Request.Cookies["refresh_token"];
 
             var result = await _authservice.RefreshTokenAsync(refreshToken);
 
             if (!result.IsAuthenticated)
                 return Unauthorized(result);
 
+            if(!string.IsNullOrEmpty(result.RefreshToken))
             SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
-
+            
+            if(!string.IsNullOrEmpty(result.Token))
+            SetAccessTokenInCookie(result.Token, result.ExpiresOn);
+            
             return Ok(result);
         }
 
@@ -81,7 +90,7 @@ namespace FoodStore.Api.Controllers
         [HttpPost("revoke-token")]
         public async Task<IActionResult> RevokeToken([FromBody] RevokeToken dto)
         {
-            var token = dto.Token ?? Request.Cookies["refreshToken"];
+            var token = dto.Token ?? Request.Cookies["refresh_token"];
 
             if (string.IsNullOrEmpty(token))
                 return BadRequest("Token is required!");
@@ -91,8 +100,21 @@ namespace FoodStore.Api.Controllers
             if(!result)
                 return BadRequest("Token is invalid!");
 
-            Response.Cookies.Delete("refreshToken");
+            Response.Cookies.Delete("refresh_token");
             return Ok();
+        }
+
+        private void SetAccessTokenInCookie(string token, DateTime expires)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, 
+                SameSite = SameSiteMode.Strict, 
+                Expires = expires
+            };
+
+            Response.Cookies.Append("access_token", token, cookieOptions);
         }
 
         private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
@@ -103,10 +125,10 @@ namespace FoodStore.Api.Controllers
                 Expires = expires.ToLocalTime(),
                 Secure = true,
                 IsEssential = true,
-                SameSite = SameSiteMode.None
+                SameSite = SameSiteMode.Strict
             };
 
-            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+            Response.Cookies.Append("refresh_token", refreshToken, cookieOptions);
         }
 
          

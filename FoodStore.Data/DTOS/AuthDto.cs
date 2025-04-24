@@ -13,6 +13,7 @@ namespace FoodStore.Data.DTOS
         public string Email { get; set; }
         public string Username { get; set; }
         public List<string> Roles { get; set; }
+        [JsonIgnore]
         public string Token { get; set; }
         public DateTime ExpiresOn { get; set; }
         [JsonIgnore]
