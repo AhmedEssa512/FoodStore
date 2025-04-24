@@ -131,6 +131,11 @@ namespace FoodStore.Api.Controllers
             Response.Cookies.Append("refresh_token", refreshToken, cookieOptions);
         }
 
-         
+        [HttpGet("is-authenticated")]
+        [Authorize]
+        public IActionResult IsAuthenticated()
+        {
+            return Ok(new { IsAuthenticated = true });
+        } 
     }
 }
