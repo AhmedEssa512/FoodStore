@@ -82,10 +82,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAllOrigins",
-                    builder =>
+                options.AddPolicy("AllowFrontend", policy =>
                     {
-                        builder.AllowAnyOrigin()
+                      policy.WithOrigins("http://localhost:4200")
+			                .AllowCredentials()
                             .AllowAnyMethod()
                             .AllowAnyHeader();             
                     });
@@ -152,7 +152,7 @@ var options = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
 app.UseStaticFiles();
 app.UseRequestLocalization(options!.Value);
 
-app.UseCors("AllowAllOrigins");
+app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 
 app.UseRouting();

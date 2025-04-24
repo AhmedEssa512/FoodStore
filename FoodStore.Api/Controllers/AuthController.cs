@@ -61,7 +61,7 @@ namespace FoodStore.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("refresh-token")]
+        [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];

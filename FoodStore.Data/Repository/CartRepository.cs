@@ -23,6 +23,7 @@ namespace FoodStore.Data.Repository
         {
             return await _context.carts
             .Include(c => c.Items)
+            .ThenInclude(f => f.Food)
             .FirstOrDefaultAsync(c => c.UserId == userId);
         }
 
