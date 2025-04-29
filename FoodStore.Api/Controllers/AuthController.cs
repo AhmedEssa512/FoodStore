@@ -8,6 +8,7 @@ using FoodStore.Service.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
 
 namespace FoodStore.Api.Controllers
 {
@@ -93,14 +94,33 @@ namespace FoodStore.Api.Controllers
             var token = dto.Token ?? Request.Cookies["refresh_token"];
 
             if (string.IsNullOrEmpty(token))
-                return BadRequest("Token is required!");
+            {
+                return BadRequest(new { Message = "Token is required!" });
+            }
 
             var result = await _authservice.RevokeTokenAsync(token);
 
             if(!result)
-                return BadRequest("Token is invalid!");
+            {
+                return BadRequest(new { Message = "Token is invalid!" });
+            }
 
-            Response.Cookies.Delete("refresh_token");
+            Response.Cookies.Delete("refresh_token", new CookieOptions
+            {
+                Path = "/",        
+                Secure = true,     
+                HttpOnly = true,   
+                SameSite = SameSiteMode.None 
+            });
+
+            Response.Cookies.Delete("access_token", new CookieOptions
+            {
+                Path = "/",
+                Secure = true,
+                HttpOnly = true,
+                SameSite = SameSiteMode.None
+            });
+
             return Ok();
         }
 
@@ -110,8 +130,10 @@ namespace FoodStore.Api.Controllers
             {
                 HttpOnly = true,
                 Secure = true, 
-                SameSite = SameSiteMode.Strict, 
-                Expires = expires
+                IsEssential = true,
+                SameSite = SameSiteMode.None, 
+                Expires = expires,
+                Path = "/"
             };
 
             Response.Cookies.Append("access_token", token, cookieOptions);
@@ -125,7 +147,8 @@ namespace FoodStore.Api.Controllers
                 Expires = expires.ToLocalTime(),
                 Secure = true,
                 IsEssential = true,
-                SameSite = SameSiteMode.Strict
+                SameSite = SameSiteMode.None,
+                Path = "/"
             };
 
             Response.Cookies.Append("refresh_token", refreshToken, cookieOptions);
