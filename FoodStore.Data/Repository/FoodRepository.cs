@@ -23,6 +23,12 @@ namespace FoodStore.Data.Repository
         {
             return await _context.foods.AnyAsync(f => f.Id == foodId);
         }
+        public async Task<IEnumerable<Food>> GetFoodsByIdsAsync(List<int> foodIds)
+        {
+            return await _context.foods
+                .Where(f => foodIds.Contains(f.Id)) 
+                .ToListAsync();
+        }
 
         public async Task<IEnumerable<Food>> GetPaginatedFoods(PaginationParams paginationParams)
         {

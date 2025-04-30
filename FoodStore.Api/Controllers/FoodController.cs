@@ -93,6 +93,13 @@ namespace FoodStore.Api.Controllers
             var data = await _foodService.SearchFoodsAsync(query,paginationParams);
             
             return Ok(data);
+        }
+
+        [HttpPost("getFoodByIds")]
+        public async Task<IActionResult> getFoodByIds([FromBody]List<int> Ids)
+        {
+            var foods = await _foodService.GetFoodDetailsByIdsAsync(Ids);
+            return Ok(foods);
         }        
 
 

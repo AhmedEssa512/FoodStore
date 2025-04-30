@@ -226,6 +226,15 @@ namespace FoodStore.Service.Implementations
             return foods;
         }
 
+        public async Task<IEnumerable<Food>> GetFoodDetailsByIdsAsync(List<int> foodIds)
+        {
+            if (foodIds == null || !foodIds.Any())
+               return [];
+
+             return await _unitOfWork.Food.GetFoodsByIdsAsync(foodIds);
+
+        }
+
 
     }
 }

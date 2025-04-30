@@ -14,6 +14,7 @@ namespace FoodStore.Service.Abstracts
        Task DeleteFoodAsync(int foodId);
        Task UpdateFoodAsync(int foodId,FoodDto foodDto);
        Task<IEnumerable<Food>> GetFoodsAsync(PaginationParams paginationParams);
+       Task<IEnumerable<Food>> GetFoodDetailsByIdsAsync(List<int> foodIds);
        Task<Food> GetFoodAsync(int foodId);
        Task<string> SaveImageAsync(IFormFile image);
        void DeleteImageAsync(string imagePath);
