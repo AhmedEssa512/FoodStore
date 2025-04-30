@@ -72,26 +72,21 @@ namespace FoodStore.Service.Implementations
         public async Task<string> SaveImageAsync(IFormFile image)
         {
 
-            // Generate a unique file name for the image
             string imageFileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
 
-            // Define the path to save the image (wwwroot/images folder)
             var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", imageFileName);
 
-            // Ensure the directory exists
             var imageDirectory = Path.GetDirectoryName(imagePath);
             if (!Directory.Exists(imageDirectory))
             {
                 Directory.CreateDirectory(imageDirectory);
             }
 
-            // Save the image asynchronously to the file system
             using (var fileStream = new FileStream(imagePath, FileMode.Create))
             {
                 await image.CopyToAsync(fileStream);
             }
 
-            // Return the relative image file path 
             return $"images/{imageFileName}";
         }
 
@@ -99,17 +94,15 @@ namespace FoodStore.Service.Implementations
         {
            if(! string.IsNullOrWhiteSpace(imagePath))
            {
-                // Combine the relative path with the root directory of the application (wwwroot)
+
                 string fullPath =  Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath);
 
-                // Check if the file exists
                 if (File.Exists(fullPath))
                 {
                     File.Delete(fullPath);                  
                 }
                 else
                 {
-                    // If the file doesn't exist, you can log it or throw an exception if needed
                     throw new NotFoundException($"File not found: {imagePath}");
                 }
            }
@@ -125,17 +118,14 @@ namespace FoodStore.Service.Implementations
 
             try
             {
-                // Delete the associated image if it exists
                 if (!string.IsNullOrWhiteSpace(food.ImageUrl))
                 {
                     DeleteImageAsync(food.ImageUrl); 
                 }
 
-                // Delete the food item from the database
                 await _unitOfWork.Food.DeleteAsync(food);
                 await _unitOfWork.SaveChangesAsync(); 
 
-                // Commit the transaction if everything succeeds
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
@@ -160,11 +150,9 @@ namespace FoodStore.Service.Implementations
             {
                 foods = await _unitOfWork.Food.GetPaginatedFoods(paginationParams);
  
-                // Cache the result with a sliding expiration of 10 minutes
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromMinutes(10));
 
-                // Store the data in the cache
                 _memoryCache.Set(cacheKey, foods, cacheEntryOptions);
             }
 
@@ -195,7 +183,6 @@ namespace FoodStore.Service.Implementations
 
                 food.ImageUrl = newImageUrl;
 
-                // Deleting old image from file sytsem
                 DeleteImageAsync(oldImageUrl);
             }
 
@@ -215,7 +202,6 @@ namespace FoodStore.Service.Implementations
 
         public async Task<IReadOnlyList<Food>> SearchFoodsAsync(string searchQuery, PaginationParams paginationParams)
         {
-            // Validate the search query to avoid unnecessary database calls
             if (string.IsNullOrWhiteSpace(searchQuery))
             {
                 return new List<Food>().AsReadOnly(); 
