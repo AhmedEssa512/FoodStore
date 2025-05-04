@@ -46,7 +46,7 @@ namespace FoodStore.Api.Controllers
         }
 
 
-        [HttpPut("items/{cartItemId}")]
+        [HttpPatch("items/{cartItemId}")]
         public async Task<IActionResult> UpdateCartAsync(int cartItemId,[FromBody]int quantity){
 
                 if (!ModelState.IsValid)
