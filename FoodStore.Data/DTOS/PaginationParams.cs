@@ -14,7 +14,7 @@ namespace FoodStore.Data.DTOS
         public int PageNumber
         {
             get => _pageNumber;
-            set => _pageNumber = (value <= 0) ? 1 : value;  // If 0 or negative, default to 1
+            set => _pageNumber = (value <= 0) ? 1 : value;  
         }
 
         public int PageSize

@@ -30,9 +30,16 @@ namespace FoodStore.Data.Repository
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Food>> GetPaginatedFoods(PaginationParams paginationParams)
+        public async Task<IEnumerable<Food>> GetPaginatedFoods(PaginationParams paginationParams, int? categoryId = null)
         {
-            return await _context.foods
+            IQueryable<Food> query = _context.foods.AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(f => f.CategoryId == categoryId.Value);
+            }
+
+            return await query
             .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
             .Take(paginationParams.PageSize)
             .ToListAsync();

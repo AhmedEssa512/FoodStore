@@ -141,14 +141,14 @@ namespace FoodStore.Service.Implementations
             return await _unitOfWork.Food.GetByIdAsync(foodId) ?? throw new NotFoundException("Food is not found");
         }
 
-        public async Task<IEnumerable<Food>> GetFoodsAsync(PaginationParams paginationParams)
+        public async Task<IEnumerable<Food>> GetFoodsAsync(PaginationParams paginationParams, int? categoryId = null)
         {
             // Generate a cache key based on the pagination params
-            string cacheKey = $"Foods_Page_{paginationParams.PageNumber}_Size_{paginationParams.PageSize}";
+            string cacheKey = $"Foods_Category_{(categoryId.HasValue ? categoryId.Value.ToString() : "All")}_Page_{paginationParams.PageNumber}_Size_{paginationParams.PageSize}";
 
             if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<Food> foods))
             {
-                foods = await _unitOfWork.Food.GetPaginatedFoods(paginationParams);
+                foods = await _unitOfWork.Food.GetPaginatedFoods(paginationParams,categoryId);
  
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromMinutes(10));
