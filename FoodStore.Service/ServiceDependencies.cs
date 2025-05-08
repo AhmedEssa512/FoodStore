@@ -20,6 +20,7 @@ namespace FoodStore.Service
              services.AddScoped<IAuthService,AuthService>();
              services.AddScoped<IOrderService,OrderService>();
              services.AddScoped<ICartService,CartService>();
+             services.AddScoped<IImageService,ImageService>();
              services.AddScoped<IAuthorizationService,AuthorizationService>();
              services.AddScoped<IUnitOfWork,UnitOfWork>();
 

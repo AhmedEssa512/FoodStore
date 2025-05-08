@@ -19,39 +19,22 @@ namespace FoodStore.Service.Implementations
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMemoryCache _memoryCache;
-        public FoodService(IUnitOfWork unitOfWork, IMemoryCache memoryCache)
+        private readonly IImageService _imageService;
+        public FoodService(IUnitOfWork unitOfWork, IMemoryCache memoryCache, IImageService imageService)
         {
             _unitOfWork = unitOfWork;
             _memoryCache = memoryCache;
+            _imageService = imageService;
         }
-        public async Task<Food> CreateFoodAsync(FoodDto foodDto)
+        public async Task<Food> CreateFoodAsync(Food food)
         {
-            if (string.IsNullOrWhiteSpace(foodDto.Name))
-                  throw new ValidationException("Name cannot be empty.");
-
-            if (string.IsNullOrWhiteSpace(foodDto.Description))
-                  throw new ValidationException("Description cannot be empty.");
 
             await _unitOfWork.BeginTransactionAsync();
 
             try
             {
-                if(! await _unitOfWork.Category.AnyCategoryAsync(foodDto.CategoryId) ) 
+                if(! await _unitOfWork.Category.AnyCategoryAsync(food.CategoryId) ) 
                  throw new NotFoundException("Category is not found");
-
-                string imageFilePath = null;
-                if (foodDto.Photo != null && foodDto.Photo.Length > 0)
-                {
-                    imageFilePath = await SaveImageAsync(foodDto.Photo); 
-                }
-     
-               var food = new Food{
-                   Name = foodDto.Name,
-                   Description = foodDto.Description,
-                   Price = foodDto.Price,
-                   CategoryId = foodDto.CategoryId,
-                   ImageUrl = imageFilePath
-               };
 
                 await _unitOfWork.Food.AddAsync(food);
 
@@ -69,46 +52,6 @@ namespace FoodStore.Service.Implementations
                
         }
 
-        public async Task<string> SaveImageAsync(IFormFile image)
-        {
-
-            string imageFileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-
-            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", imageFileName);
-
-            var imageDirectory = Path.GetDirectoryName(imagePath);
-            if (!Directory.Exists(imageDirectory))
-            {
-                Directory.CreateDirectory(imageDirectory);
-            }
-
-            using (var fileStream = new FileStream(imagePath, FileMode.Create))
-            {
-                await image.CopyToAsync(fileStream);
-            }
-
-            return $"images/{imageFileName}";
-        }
-
-        public void DeleteImageAsync(string imagePath)
-        {
-           if(! string.IsNullOrWhiteSpace(imagePath))
-           {
-
-                string fullPath =  Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath);
-
-                if (File.Exists(fullPath))
-                {
-                    File.Delete(fullPath);                  
-                }
-                else
-                {
-                    throw new NotFoundException($"File not found: {imagePath}");
-                }
-           }
-        
-        }
-
 
         public async Task DeleteFoodAsync(int foodId)
         {
@@ -120,7 +63,7 @@ namespace FoodStore.Service.Implementations
             {
                 if (!string.IsNullOrWhiteSpace(food.ImageUrl))
                 {
-                    DeleteImageAsync(food.ImageUrl); 
+                    _imageService.DeleteImageAsync(food.ImageUrl); 
                 }
 
                 await _unitOfWork.Food.DeleteAsync(food);
@@ -179,11 +122,11 @@ namespace FoodStore.Service.Implementations
 
             if(foodDto.Photo != null && foodDto.Photo.Length > 0)
             {
-                string newImageUrl = await SaveImageAsync(foodDto.Photo);
+                string newImageUrl = await _imageService.SaveImageAsync(foodDto.Photo);
 
                 food.ImageUrl = newImageUrl;
 
-                DeleteImageAsync(oldImageUrl);
+                _imageService.DeleteImageAsync(oldImageUrl);
             }
 
                 await _unitOfWork.Food.UpdateAsync(food);

@@ -73,7 +73,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                     };
                 });
 
-
+            builder.Services.AddAutoMapper(typeof(Program).Assembly);
                                             
              builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);

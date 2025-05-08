@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
 using FoodStore.Service.Abstracts;
@@ -15,12 +16,14 @@ namespace FoodStore.Api.Controllers
     public class FoodController : ControllerBase
     {
         private readonly IFoodService _foodService;
-       
+        private readonly IMapper _mapper;
+        private readonly IImageService _imageService;
 
-
-        public FoodController(IFoodService foodService)
+        public FoodController(IFoodService foodService, IMapper mapper, IImageService imageService)
         {
             _foodService = foodService;
+            _mapper = mapper;
+            _imageService = imageService;
         }
 
 
@@ -34,12 +37,22 @@ namespace FoodStore.Api.Controllers
                 return BadRequest(ModelState); 
             }
 
-           var food = await _foodService.CreateFoodAsync(foodDto);
+            string imageUrl = null;
+
+            if (foodDto.Photo != null && foodDto.Photo.Length > 0)
+            {
+                imageUrl = await _imageService.SaveImageAsync(foodDto.Photo); 
+            }
+
+            var food = _mapper.Map<Food>(foodDto);
+            food.ImageUrl = imageUrl;
+
+            var createdFood = await _foodService.CreateFoodAsync(food);
         
             return CreatedAtAction(
                    nameof(GetById),  
                    new { id = food.Id },  
-                   food  
+                   createdFood  
                  );
         } 
 
