@@ -9,7 +9,7 @@ namespace FoodStore.Data.IRepository
 {
     public interface IOrderRepository : IGenericBase<Order>
     {
-        Task<Order> GetOrderWithOrderDetailsAsync(int OrderId);
+        Task<Order?> GetOrderWithOrderDetailsAsync(int OrderId);
         Task<List<Order>> GetOrdersAsync(string userId);
 
     }

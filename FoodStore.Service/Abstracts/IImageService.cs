@@ -9,6 +9,6 @@ namespace FoodStore.Service.Abstracts
     public interface IImageService
     {
         Task<string> SaveImageAsync(IFormFile image);
-        void DeleteImageAsync(string imagePath);
+        Task DeleteImageAsync(string imagePath);
     }
 }

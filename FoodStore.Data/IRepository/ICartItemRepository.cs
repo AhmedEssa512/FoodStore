@@ -9,6 +9,6 @@ namespace FoodStore.Data.IRepository
 {
     public interface ICartItemRepository:IGenericBase<CartItem>
     {
-        Task<CartItem> GetCartItemWithCartAsync(int cartItemId);
+        Task<CartItem?> GetCartItemWithCartAsync(int cartItemId);
     }
 }

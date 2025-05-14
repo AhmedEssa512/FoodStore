@@ -12,7 +12,7 @@ using Microsoft.Extensions.Localization;
 namespace FoodStore.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -23,23 +23,19 @@ namespace FoodStore.Api.Controllers
         }
 
 
-        [HttpPost("categories")]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddAsync([FromBody]CategoryDto categoryDto)
+        public async Task<IActionResult> Create([FromBody]CategoryDto categoryDto)
         {
-              if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState); 
-               }
 
              await  _categoryService.AddCategoryAsync(categoryDto);
 
-             return Ok(new {Message ="Added successfully."});
+             return Ok(new { Message ="Added successfully." });
         }
 
-        [HttpDelete("categories/{id}")]
+        [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> Delete(int id)
         {
            
              await _categoryService.DeleteCategoryAsync(id);
@@ -47,9 +43,9 @@ namespace FoodStore.Api.Controllers
         }
 
 
-        [HttpPut("categories/{id}")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateAsync(int id,[FromBody] CategoryDto categoryDto)
+        public async Task<IActionResult> Update(int id,[FromBody] CategoryDto categoryDto)
         {
              if (!ModelState.IsValid)
              {
@@ -58,20 +54,20 @@ namespace FoodStore.Api.Controllers
 
              await _categoryService.UpdateCategoryAsync(id,categoryDto);
 
-             return Ok(new {Message ="Updated successfully."});
+             return Ok(new { Message ="Updated successfully." });
 
         }
 
-        [HttpGet("categories/{categoryId}")]
-        public async Task<IActionResult> GetCategoryByIdAsync(int categoryId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-             var category = await _categoryService.GetCategoryAsync(categoryId);
+             var category = await _categoryService.GetCategoryAsync(id);
              return Ok(category);
         }
 
             
-        [HttpGet("categories")]
-        public async Task<IActionResult> GetCategoriesAsync()
+        [HttpGet]
+        public async Task<IActionResult> GetAllCategories()
         {
 	     var category = await _categoryService.GetCategoriesAsync();
              return Ok(category);

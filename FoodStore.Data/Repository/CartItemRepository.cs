@@ -18,7 +18,7 @@ namespace FoodStore.Data.Repository
             _context = context;
         }
 
-        public async Task<CartItem> GetCartItemWithCartAsync(int cartItemId)
+        public async Task<CartItem?> GetCartItemWithCartAsync(int cartItemId)
         {
             return await _context.cartItems
             .Include(ci => ci.Cart) 

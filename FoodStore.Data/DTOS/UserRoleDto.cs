@@ -9,8 +9,8 @@ namespace FoodStore.Data.DTOS
     public class UserRoleDto
     {
         [Required]
-        public string Email { get; set; }
+        public required string Email { get; set; }
         [Required]
-        public string roleName { get; set; }
+        public required string RoleName { get; set; }
     }
 }

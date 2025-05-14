@@ -11,9 +11,8 @@ namespace FoodStore.Data.Entities
 
         public int Id { get; set; }
         [Required,MaxLength(20)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
         [Required]
-        public string Description { get; set; }
-        public virtual ICollection<Food> Foods { get; set; }
+        public virtual ICollection<Food> Foods { get; set; } = [];
     }
 }

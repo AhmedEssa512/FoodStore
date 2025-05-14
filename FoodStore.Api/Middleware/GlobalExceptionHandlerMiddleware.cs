@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FoodStore.Service.Exceptions;
 
@@ -25,36 +26,50 @@ namespace FoodStore.Api.Middleware
             }
             catch (NotFoundException ex)
             {
-                httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-                await httpContext.Response.WriteAsync($"Error: {ex.Message}");
+                await WriteJsonErrorResponse(httpContext, StatusCodes.Status404NotFound, ex.Message);
             }
             catch (ValidationException ex)
             {
-                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await httpContext.Response.WriteAsync($"Error: {ex.Message}");
+                await WriteJsonErrorResponse(httpContext, StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (ForbiddenException ex)
             {
-                httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await httpContext.Response.WriteAsync($"Error: {ex.Message}");
+                await WriteJsonErrorResponse(httpContext, StatusCodes.Status403Forbidden, ex.Message);
             }
             catch (ConflictException ex)
             {
-                httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
-                await httpContext.Response.WriteAsync($"Error: {ex.Message}");
+                await WriteJsonErrorResponse(httpContext, StatusCodes.Status409Conflict, ex.Message);
             }
             catch (OperationFailedException ex)
             {
-                httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await httpContext.Response.WriteAsync($"Error: {ex.Message}");
+                await WriteJsonErrorResponse(httpContext, StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                await WriteJsonErrorResponse(httpContext, StatusCodes.Status401Unauthorized, ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error occurred: {Message}", ex.Message);
-                httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await httpContext.Response.WriteAsync("Unexpected error occured");
+                await WriteJsonErrorResponse(httpContext, StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
+
+        private async Task WriteJsonErrorResponse(HttpContext context, int statusCode, string message)
+        {
+            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                error = message,
+                status = statusCode,
+                timestamp = DateTime.UtcNow
+            };
+
+            var json = JsonSerializer.Serialize(response);
+            await context.Response.WriteAsync(json);
+        }
     }
-    
 }
+    

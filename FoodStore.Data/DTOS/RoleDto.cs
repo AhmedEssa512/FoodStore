@@ -10,6 +10,6 @@ namespace FoodStore.Data.DTOS
     {
         [Required]
         [StringLength(25, MinimumLength = 3, ErrorMessage = "Role name must be between 3 and 25 characters.")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
     }
 }

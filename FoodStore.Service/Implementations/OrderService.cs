@@ -56,7 +56,7 @@ namespace FoodStore.Service.Implementations
                 
                 var orderDetails = cart.Items.Select(cartItem => new OrderDetail
                 {
-                    orderId = order.Id, 
+                    OrderId = order.Id, 
                     Quantity = cartItem.Quantity,
                     UnitPrice = cartItem.Price,
                     FoodId = cartItem.FoodId

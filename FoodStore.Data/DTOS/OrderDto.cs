@@ -9,8 +9,8 @@ namespace FoodStore.Data.DTOS
     public class OrderDto
     {
         [Required]
-        public string Address { get; set; }
+        public required string Address { get; set; }
         [Required,MinLength(11)]
-        public string Phone { get; set; }
+        public required string Phone { get; set; }
     }
 }

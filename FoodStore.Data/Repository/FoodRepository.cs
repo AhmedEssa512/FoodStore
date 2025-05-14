@@ -30,7 +30,7 @@ namespace FoodStore.Data.Repository
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Food>> GetPaginatedFoods(PaginationParams paginationParams, int? categoryId = null)
+        public async Task<(IReadOnlyList<Food>, int TotalCount)> GetPaginatedFoods(PaginationParams paginationParams, int? categoryId = null)
         {
             IQueryable<Food> query = _context.foods.AsQueryable();
 
@@ -39,13 +39,19 @@ namespace FoodStore.Data.Repository
                 query = query.Where(f => f.CategoryId == categoryId.Value);
             }
 
-            return await query
+            int totalCount = await query.CountAsync();
+
+            var foods = await query
+            .AsNoTracking()
+            .OrderBy(f => f.Name)
             .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
             .Take(paginationParams.PageSize)
             .ToListAsync();
+
+            return (foods, totalCount);
         }
 
-        public async Task<double> GetPriceAsync(int foodId)
+        public async Task<decimal> GetPriceAsync(int foodId)
         {
             return await _context.foods
             .Where(f => f.Id == foodId)
@@ -53,25 +59,26 @@ namespace FoodStore.Data.Repository
             .FirstOrDefaultAsync();
         }
 
-        public async Task<IReadOnlyList<Food>> SearchFoodsInDatabaseAsync(string searchQuery, PaginationParams paginationParams)
+        public async Task<(IReadOnlyList<Food>, int TotalCount)> SearchFoodsInDatabaseAsync(string normalizedQuery, PaginationParams paginationParams)
         {
-            // Normalize the search query to handle case-insensitivity and trimming
-            string normalizedQuery = searchQuery.Trim().ToLower();
 
             var query = _context.foods.AsQueryable();
 
-
             if (!string.IsNullOrWhiteSpace(normalizedQuery))
             {
-                query = query.Where(f => f.Name.Contains(normalizedQuery) || f.Description.Contains(normalizedQuery));
+                query = query.Where(f =>
+                 f.Name.ToLower().Contains(normalizedQuery) ||
+                 f.Description.ToLower().Contains(normalizedQuery));
             }
+
+            var totalCount = await query.CountAsync();
         
-            var paginatedFoods = await query
+            var foods = await query
                 .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
                 .Take(paginationParams.PageSize)
                 .ToListAsync();
 
-            return paginatedFoods;
+            return (foods.AsReadOnly(), totalCount);
         }
     }
 }

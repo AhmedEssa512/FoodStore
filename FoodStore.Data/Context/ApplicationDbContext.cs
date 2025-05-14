@@ -9,18 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodStore.Data.Context
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options):base(options)
-        {      
-        }
-
-        public DbSet<Category> categories  { get; set; }
-        public DbSet<Food> foods  { get; set; }
-        public DbSet<Order> orders  { get; set; }
-        public DbSet<OrderDetail> orderDetails  { get; set; }
-        public DbSet<Cart> carts  { get; set; }
-        public DbSet<CartItem> cartItems  { get; set; }
+        public DbSet<Category> categories  { get; set; } 
+        public DbSet<Food> foods  { get; set; } 
+        public DbSet<Order> orders  { get; set; } 
+        public DbSet<OrderDetail> orderDetails  { get; set; } 
+        public DbSet<Cart> carts  { get; set; } 
+        public DbSet<CartItem> cartItems  { get; set; } 
 
         // public DbSet<RefreshToken> refreshTokens  { get; set; }
 

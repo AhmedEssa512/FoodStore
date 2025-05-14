@@ -26,7 +26,7 @@ namespace FoodStore.Service.Repository
             .ToListAsync();
         }
 
-        public async Task<Order> GetOrderWithOrderDetailsAsync(int orderId)
+        public async Task<Order?> GetOrderWithOrderDetailsAsync(int orderId)
         {
             return await _context.orders
             .Include(od => od.OrderDetails)

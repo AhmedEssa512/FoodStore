@@ -31,7 +31,7 @@ namespace FoodStore.Service.Implementations
             return $"images/{imageFileName}";
         }
 
-        public void DeleteImageAsync(string imagePath)
+        public async Task DeleteImageAsync(string imagePath)
         {
            if(! string.IsNullOrWhiteSpace(imagePath))
            {
@@ -39,8 +39,8 @@ namespace FoodStore.Service.Implementations
                 string fullPath =  Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath);
 
                 if (File.Exists(fullPath))
-                {
-                    File.Delete(fullPath);                  
+                {    
+                    await Task.Run(() => File.Delete(fullPath));            
                 }
                 else
                 {

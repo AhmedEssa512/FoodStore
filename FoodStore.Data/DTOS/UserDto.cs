@@ -9,12 +9,12 @@ namespace FoodStore.Data.DTOS
     public class UserDto
     {
         [Required]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required]
-        public string Username { get; set; }
+        public required string Username { get; set; }
 
         [Required]
-        public string password { get; set; }
+        public required string Password { get; set; }
     }
 }

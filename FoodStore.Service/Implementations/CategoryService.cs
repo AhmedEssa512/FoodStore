@@ -26,13 +26,8 @@ namespace FoodStore.Service.Implementations
 
         public async Task AddCategoryAsync(CategoryDto categoryDto)
         {
-            if (string.IsNullOrWhiteSpace(categoryDto.Name))
-                throw new ValidationException("Name cannot be empty.");
 
-            if (string.IsNullOrWhiteSpace(categoryDto.Description))
-                throw new ValidationException("Description cannot be empty.");
-
-            var category = new Category{Name = categoryDto.Name, Description = categoryDto.Description};
+            var category = new Category{ Name = categoryDto.Name };
 
             await _unitOfWork.Category.AddAsync(category);
 
@@ -67,16 +62,11 @@ namespace FoodStore.Service.Implementations
 
         public async Task UpdateCategoryAsync(int categoryId, CategoryDto categoryDto)
         {
-            if (string.IsNullOrWhiteSpace(categoryDto.Name))
-                throw new ValidationException("Name cannot be empty.");
-
-            if (string.IsNullOrWhiteSpace(categoryDto.Description))
-                throw new ValidationException("Description cannot be empty.");
                 
-            var category = await _unitOfWork.Category.GetByIdAsync(categoryId) ?? throw new NotFoundException("Category is not found");
+            var category = await _unitOfWork.Category.GetByIdAsync(categoryId) ??
+                throw new NotFoundException("Category is not found");
 
             category.Name = categoryDto.Name;
-            category.Description = categoryDto.Description;
 
             await _unitOfWork.Category.UpdateAsync(category);
 

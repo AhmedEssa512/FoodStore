@@ -13,7 +13,7 @@ namespace FoodStore.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class CartController : ControllerBase
+    public class CartController : BaseApiController
     {
         private readonly ICartService _cartService;
 
@@ -25,57 +25,36 @@ namespace FoodStore.Api.Controllers
         [HttpPost("items")]
         public async Task<IActionResult> AddToCart([FromBody] CartItemDto cartItemDto)
         {
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState); 
-                }
-                  string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-                  await _cartService.AddToCartAsync(userId,cartItemDto);
-                  return Ok(new {Message ="Added successfully."});
+                await _cartService.AddToCartAsync(UserId,cartItemDto);
+                return Ok(new {Message ="Added successfully."});
         }
 
         [HttpGet("items")]
-        public async Task<IActionResult> GetCartAsync(){
-
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                var cart = await _cartService.GetCartItemsAsync(userId) ;
-                 return Ok(cart);
+        public async Task<IActionResult> GetCartAsync()
+        {
+                var cart = await _cartService.GetCartItemsAsync(UserId);
+                return Ok(cart);
         }
 
 
         [HttpPatch("items/{cartItemId}")]
-        public async Task<IActionResult> UpdateCartAsync(int cartItemId,[FromBody]int quantity){
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState); 
-                }
-
-               string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-               await _cartService.UpdateCartItemAsync(userId,cartItemId,quantity);
-               return Ok(new {Message ="Updated successfully."});
+        public async Task<IActionResult> UpdateCartAsync(int cartItemId, [FromBody]CartItemUpdateDto dto)
+        {
+               await _cartService.UpdateCartItemAsync(UserId,cartItemId,dto.Quantity);
+               return Ok(new { Message = "Updated successfully." });
         }
 
         [HttpDelete("items/{cartItemId}")]
         public async Task<IActionResult> DeleteCartItemAsync(int cartItemId)
         {
-            
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-                await _cartService.DeleteCartItemAsync(userId,cartItemId);
-                return NoContent();;     
+                await _cartService.DeleteCartItemAsync(UserId,cartItemId);
+                return NoContent();
         }
 
         [HttpDelete("items")]
         public  async Task<IActionResult> DeleteAllItemAsync()
         {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                await _cartService.DeleteCartItemsAsync(userId);
+                await _cartService.DeleteCartItemsAsync(UserId);
                 return NoContent();
         }
 
@@ -83,9 +62,8 @@ namespace FoodStore.Api.Controllers
         [Authorize]
         public async Task<IActionResult> MergeCart([FromBody] List<CartItemDto> items)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _cartService.MergeCartAsync(userId, items);
-            return Ok();
+               await _cartService.MergeCartAsync(UserId, items);
+               return Ok();
         }
 
 

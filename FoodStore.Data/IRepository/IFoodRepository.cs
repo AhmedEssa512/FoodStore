@@ -11,9 +11,9 @@ namespace FoodStore.Data.IRepository
     public interface IFoodRepository : IGenericBase<Food>
     {
         Task<bool> AnyFoodAsync(int foodId);
-        Task<double> GetPriceAsync(int foodId);
-        Task<IEnumerable<Food>> GetPaginatedFoods(PaginationParams paginationParams,int? categoryId = null);
-        Task<IReadOnlyList<Food>> SearchFoodsInDatabaseAsync(string searchQuery, PaginationParams paginationParams);
+        Task<decimal> GetPriceAsync(int foodId);
+        Task<(IReadOnlyList<Food>, int TotalCount)> GetPaginatedFoods(PaginationParams paginationParams,int? categoryId = null);
+        Task<(IReadOnlyList<Food>, int TotalCount)> SearchFoodsInDatabaseAsync(string searchQuery, PaginationParams paginationParams);
         Task<IEnumerable<Food>> GetFoodsByIdsAsync(List<int> foodIds);
     }
 }

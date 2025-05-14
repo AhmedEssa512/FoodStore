@@ -9,9 +9,6 @@ namespace FoodStore.Data.DTOS
     public class CategoryDto
     {
         [Required,MaxLength(20),MinLength(3)]
-        public string Name { get; set; }
-        
-        [Required,MinLength(50)]
-        public string Description { get; set; }
+        public required string Name { get; set; }
     }
 }

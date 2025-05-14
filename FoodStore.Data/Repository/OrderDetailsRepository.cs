@@ -18,7 +18,7 @@ namespace FoodStore.Data.Repository
             _context = context;
         }
 
-        public async Task<OrderDetail> GetOrderDetailsWithOrder(int orderItemId)
+        public async Task<OrderDetail?> GetOrderDetailsWithOrder(int orderItemId)
         {
             return await _context.orderDetails
             .Include(o => o.Order)

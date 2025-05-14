@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace FoodStore.Data.DTOS
 {
-    public class RevokeToken
+    public class PaginatedResult<T>
     {
-        public required string Token { get; set; }
+        public IReadOnlyList<T> Items { get; set; } = [];
+        public int TotalCount { get; set; }
     }
 }

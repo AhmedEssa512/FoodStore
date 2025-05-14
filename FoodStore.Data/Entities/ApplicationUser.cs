@@ -9,6 +9,6 @@ namespace FoodStore.Data.Entities
 {
     public class ApplicationUser : IdentityUser
     {
-        public List<RefreshToken> RefreshTokens { get; set; }
+        public  List<RefreshToken>? RefreshTokens { get; set; }
     }
 }

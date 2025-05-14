@@ -13,15 +13,15 @@ namespace FoodStore.Data.Entities
 
         public int Id { get; set; }
         [Required]
-        public string Address { get; set; }
+        public required string Address { get; set; }
         [Required]
-        public string Phone { get; set; }
+        public required string Phone { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
-        public double Total { get; set; }
-        public string UserId { get; set; }
-        public ApplicationUser User { get; set; }
-        public ICollection<OrderDetail> OrderDetails { get; set; }
+        public decimal Total { get; set; }
+        public required string UserId { get; set; }
+        public  ApplicationUser? User { get; set; }
+        public  ICollection<OrderDetail> OrderDetails { get; set; } = [];
 
 
     }

@@ -39,7 +39,7 @@ namespace FoodStore.Service.Authentication
         {
            
             var user = await _usermanager.FindByEmailAsync(userDto.Email);
-            if(user is null || !await _usermanager.CheckPasswordAsync(user,userDto.password))
+            if(user is null || !await _usermanager.CheckPasswordAsync(user,userDto.Password))
             {
                 return new AuthDto{Message = "Password or Email is incorrect"};
             }
@@ -56,7 +56,6 @@ namespace FoodStore.Service.Authentication
             authDto.Token = new JwtSecurityTokenHandler().WriteToken(token);
             authDto.ExpiresOn = token.ValidTo;
 
-Console.WriteLine($"authDto.ExpiresOn: {authDto.ExpiresOn}");
             if(user.RefreshTokens.Any(t => t.IsActive) )
             {
                 var refreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);
@@ -96,7 +95,7 @@ Console.WriteLine($"authDto.ExpiresOn: {authDto.ExpiresOn}");
                 
                 
 
-            var result = await _usermanager.CreateAsync(user,userDto.password);
+            var result = await _usermanager.CreateAsync(user,userDto.Password);
 
             if(!result.Succeeded)
               {

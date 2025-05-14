@@ -19,12 +19,14 @@ namespace FoodStore.Data.Repository
             _context = context;
         }
 
-        public async Task<Cart> GetCartWithCartItemsAsync(string userId)
+        public async Task<Cart?> GetCartWithCartItemsAsync(string userId)
         {
-            return await _context.carts
+            var cart = await _context.carts
             .Include(c => c.Items)
             .ThenInclude(f => f.Food)
             .FirstOrDefaultAsync(c => c.UserId == userId);
+            
+            return cart;
         }
 
         

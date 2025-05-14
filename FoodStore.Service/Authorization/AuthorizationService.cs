@@ -45,13 +45,13 @@ namespace FoodStore.Service.Authorization
             if(user is null)
              throw new NotFoundException("User is not found");
 
-            if(! await IsRoleExistByName(userRoleDto.roleName))
+            if(! await IsRoleExistByName(userRoleDto.RoleName))
              throw new NotFoundException("Role is not found");
 
-            if(await _userManager.IsInRoleAsync(user,userRoleDto.roleName))
+            if(await _userManager.IsInRoleAsync(user,userRoleDto.RoleName))
              throw new ConflictException("User already have this role");
 
-             var result = await _userManager.AddToRoleAsync(user,userRoleDto.roleName);
+             var result = await _userManager.AddToRoleAsync(user,userRoleDto.RoleName);
 
              if(! result.Succeeded)
               throw new OperationFailedException("An error occurred while adding the user to the role.");
@@ -77,13 +77,13 @@ namespace FoodStore.Service.Authorization
             if(user is null)
              throw new NotFoundException("User is not found");;
 
-            if(! await IsRoleExistByName(userRoleDto.roleName))
+            if(! await IsRoleExistByName(userRoleDto.RoleName))
              throw new NotFoundException("Role is not found");;
 
-            if(! await _userManager.IsInRoleAsync(user,userRoleDto.roleName))
+            if(! await _userManager.IsInRoleAsync(user,userRoleDto.RoleName))
               throw new ConflictException("User does not have this role");
 
-             var result = await _userManager.RemoveFromRoleAsync(user,userRoleDto.roleName);
+             var result = await _userManager.RemoveFromRoleAsync(user,userRoleDto.RoleName);
 
              if(! result.Succeeded)
               throw new OperationFailedException("An error occurred while removing the user from the role.");

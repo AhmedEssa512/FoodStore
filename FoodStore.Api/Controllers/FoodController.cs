@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FoodStore.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/foods")]
     public class FoodController : ControllerBase
     {
         private readonly IFoodService _foodService;
@@ -26,33 +26,23 @@ namespace FoodStore.Api.Controllers
             _imageService = imageService;
         }
 
-
+        
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([FromForm]FoodDto foodDto)
+        [ProducesResponseType(typeof(FoodDto), 201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> Create([FromForm]FoodCreateDto foodCreateDto)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState); 
-            }
+            var createdFood = await _foodService.CreateFoodAsync(foodCreateDto);
 
-            string imageUrl = null;
-
-            if (foodDto.Photo != null && foodDto.Photo.Length > 0)
-            {
-                imageUrl = await _imageService.SaveImageAsync(foodDto.Photo); 
-            }
-
-            var food = _mapper.Map<Food>(foodDto);
-            food.ImageUrl = imageUrl;
-
-            var createdFood = await _foodService.CreateFoodAsync(food);
+            var resultDto = _mapper.Map<FoodDto>(createdFood);
         
             return CreatedAtAction(
                    nameof(GetById),  
-                   new { id = food.Id },  
-                   createdFood  
+                   new { id = resultDto.Id },  
+                   resultDto  
                  );
         } 
 
@@ -61,41 +51,31 @@ namespace FoodStore.Api.Controllers
         {
             var food = await _foodService.GetFoodAsync(id);
 
-            if (food == null)
-            {
-                return NotFound();
-            }
+            var resultDto = _mapper.Map<FoodDto>(food);
            
-            return Ok(food);
+            return Ok(resultDto);
         }
 
-        [HttpDelete("foods/{foodId}")]
+        [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(int foodId) 
+        public async Task<IActionResult> Delete(int id) 
         {
-             await _foodService.DeleteFoodAsync(foodId);
+             await _foodService.DeleteFoodAsync(id);
 
              return NoContent();
         }
 
-
-        [HttpPut("foods/{foodId}")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(int foodId,[FromForm]FoodDto foodDto)
+        public async Task<IActionResult> Update(int id, [FromForm] FoodUpdateDto foodDto)
         {       
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState); 
-            }
+            await _foodService.UpdateFoodAsync(id,foodDto);
 
-            await _foodService.UpdateFoodAsync(foodId,foodDto);
-
-            return Ok(new {Message ="Updated successfully."});
+            return Ok(new { Message ="Updated successfully." });
         }
 
-
-        [HttpGet("foods")]
-        public async Task<IActionResult> GetFoods([FromQuery] FoodQueryParams queryParams)
+        [HttpGet]
+        public async Task<IActionResult> GetAllFoods([FromQuery] FoodQueryParams queryParams)
         {
             var pagination = new PaginationParams
             {
@@ -103,23 +83,51 @@ namespace FoodStore.Api.Controllers
                 PageSize = queryParams.PageSize
             };
 
-            var foods = await _foodService.GetFoodsAsync(pagination, queryParams.CategoryId);
-            return Ok(foods);
+            var result = await _foodService.GetFoodsAsync(pagination, queryParams.CategoryId);
+            var dtoList = _mapper.Map<IEnumerable<FoodDto>>(result.Items);
+
+            var response = new PagedResponse<FoodDto>
+            {
+                Data = dtoList,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize,
+                TotalCount = result.TotalCount
+            };
+            
+            return Ok(response);
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search(string query,[FromQuery]PaginationParams paginationParams)
+        public async Task<IActionResult> Search([FromQuery]string query, [FromQuery]PaginationParams paginationParams)
         {
-            var data = await _foodService.SearchFoodsAsync(query,paginationParams);
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Search query is required.");
+                
+            var result = await _foodService.SearchFoodsAsync(query,paginationParams);
+
+            var dtoList = _mapper.Map<IEnumerable<FoodDto>>(result.Items);
+
+             var response = new PagedResponse<FoodDto>
+            {
+                Data = dtoList,
+                PageNumber = paginationParams.PageNumber,
+                PageSize = paginationParams.PageSize,
+                TotalCount = result.TotalCount
+            };
             
-            return Ok(data);
+            return Ok(response);
         }
 
-        [HttpPost("getFoodByIds")]
-        public async Task<IActionResult> getFoodByIds([FromBody]List<int> Ids)
+        [HttpPost("batch")]
+        public async Task<IActionResult> GetByIds([FromBody]List<int> ids)
         {
-            var foods = await _foodService.GetFoodDetailsByIdsAsync(Ids);
-            return Ok(foods);
+            if (ids == null || ids.Count == 0)
+                return BadRequest("A list of food IDs must be provided.");
+
+            var foods = await _foodService.GetFoodDetailsByIdsAsync(ids);
+
+            var respone = _mapper.Map<IEnumerable<FoodDto>>(foods);
+            return Ok(respone);
         }        
 
 

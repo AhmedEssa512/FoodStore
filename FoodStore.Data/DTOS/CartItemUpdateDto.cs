@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace FoodStore.Data.DTOS
 {
-    public class LogInDto
+    public class CartItemUpdateDto
     {
-        [Required]
-        public required string Email { get; set; }
-        [Required]
-        public required string Password { get; set; }       
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
+        public int Quantity { get; set; }
     }
 }
