@@ -9,51 +9,46 @@ using FoodStore.Data.Context;
 using FoodStore.Service.Exceptions;
 using FoodStore.Data.IRepository;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace FoodStore.Service.Implementations
 {
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-          public OrderService(IUnitOfWork unitOfWork)
+          public OrderService(IUnitOfWork unitOfWork , IMapper mapper)
           {
              _unitOfWork = unitOfWork;
+             _mapper = mapper;
           }
 
         public async Task AddOrderAsync(string userId, OrderDto orderDto)
         {
 
-
-            if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
-
-            if (string.IsNullOrWhiteSpace(orderDto.Address))
-                throw new ValidationException("Address cannot be empty.");
-
-            if (string.IsNullOrWhiteSpace(orderDto.Phone))
-                throw new ValidationException("Phone cannot be empty.");
-
             await _unitOfWork.BeginTransactionAsync();
            try
            {
-         
                 var cart = await _unitOfWork.Cart.GetCartWithCartItemsAsync(userId);
 
-                if(cart is null || cart.Items.Count == 0) throw new NotFoundException("You should add item at least to the cart to can make an order");
-
-                if(cart.UserId != userId) throw new ForbiddenException("You do not have permission to create an order");
-
-                var order = new Order{
-                    Address = orderDto.Address,
-                    Phone = orderDto.Phone,
-                    Total = cart.Total,
-                    UserId = userId,
-                    OrderDetails = []
-                };
+                if(cart is null || cart.Items.Count is 0) 
+                {
+                    throw new NotFoundException("You should add item at least to the cart to can make an order");
+                }
                 
-
-                await _unitOfWork.Order.AddAsync(order);
+                if(cart.UserId != userId) 
+                {
+                    throw new ForbiddenException("You do not have permission to create an order");
+                }
                 
+                var order = _mapper.Map<Order>(orderDto);
+
+                order.UserId = userId;
+                order.Total = cart.Total;
+
+                 await _unitOfWork.Order.AddAsync(order);
+
                 var orderDetails = cart.Items.Select(cartItem => new OrderDetail
                 {
                     OrderId = order.Id, 
@@ -62,12 +57,12 @@ namespace FoodStore.Service.Implementations
                     FoodId = cartItem.FoodId
                 }).ToList();
 
+
                 await _unitOfWork.OrderDetails.AddRangeAsync(orderDetails);
 
                 await _unitOfWork.Cart.DeleteAsync(cart);
 
                 await _unitOfWork.SaveChangesAsync();
-
                 await _unitOfWork.CommitTransactionAsync();
          
            }
@@ -79,47 +74,19 @@ namespace FoodStore.Service.Implementations
 
         }
 
-        public async Task DeleteOrderItemAsync(string userId, int orderItemId)
-        {
-            if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
-
-            await _unitOfWork.BeginTransactionAsync();
-
-            try
-            {
-                var orderItem = await _unitOfWork.OrderDetails.GetOrderDetailsWithOrder(orderItemId) ?? throw new NotFoundException("Order item not found");
-                
-                if (orderItem.Order.UserId != userId) throw new ForbiddenException("You dont have permsiion");
-
-                await _unitOfWork.OrderDetails.DeleteAsync(orderItem);
-
-                orderItem.Order.Total -= orderItem.UnitPrice * orderItem.Quantity;
-
-                await _unitOfWork.SaveChangesAsync();
-
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch(Exception)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
-        }
 
         public async Task DeleteOrderAsync(string userId, int orderId)
         {
-            if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
 
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var order = await _unitOfWork.Order.GetOrderWithOrderDetailsAsync(orderId) ?? throw new NotFoundException("Order not found");
-                if (order.UserId != userId) throw new ForbiddenException("You do not have permission to do this operation");
+                var order = await _unitOfWork.Order.GetByIdAsync(orderId) ?? 
+                   throw new NotFoundException("Order not found");
 
                 await _unitOfWork.Order.DeleteAsync(order);
 
                 await _unitOfWork.SaveChangesAsync();
-
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch(Exception)
@@ -130,28 +97,30 @@ namespace FoodStore.Service.Implementations
            
         }
 
-        public async Task UpdateOrderAsync(string userId,int orderItemId,int quantity)
+        public async Task UpdateOrderAsync(string userId, int orderId, OrderDto orderDto)
         {
-            if(string.IsNullOrWhiteSpace(userId))  throw new ValidationException("User Id can not be empty.");
-
-            if(quantity <= 0) throw new ValidationException("Invalid quantity");
 
             await _unitOfWork.BeginTransactionAsync();
 
             try
             {
-                var orderItem = await _unitOfWork.OrderDetails.GetOrderDetailsWithOrder(orderItemId) ?? throw new NotFoundException("Order not found");
+                var order = await _unitOfWork.Order.GetByIdAsync(orderId) ??
+                    throw new NotFoundException("Order not found");
                 
-                if (orderItem.Order.UserId != userId) throw new ForbiddenException("do not have permession");
+                if (order.UserId != userId) 
+                {
+                    throw new ForbiddenException("do not have permession");
+                }
 
-                orderItem.Quantity = quantity;
+                if (order.Status != OrderStatus.Pending)
+                {
+                    throw new ForbiddenException("You cannot update the order address or phone because the order has already been processed.");
+                }
 
-                await _unitOfWork.OrderDetails.UpdateAsync(orderItem);
-
-                orderItem.Order.Total = orderItem.Order.OrderDetails.Sum(o => o.UnitPrice * o.Quantity);
+                 order.Address = orderDto.Address;
+                 order.Phone = orderDto.Phone;
 
                 await _unitOfWork.SaveChangesAsync();
-
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
@@ -163,9 +132,58 @@ namespace FoodStore.Service.Implementations
             
         }
 
-        public async Task<List<Order>> GetOrdersAsync(string UserId)
+        public async Task<IReadOnlyList<Order>> GetOrdersAsync(string UserId)
         {
             return await _unitOfWork.Order.GetOrdersAsync(UserId);
         }
+
+        public async Task<OrderResponseDto> GetOrderByIdAsync(int orderId)
+        {
+            var order = await _unitOfWork.Order.GetOrderWithDetailsAsync(orderId) ??
+                throw new NotFoundException("Order not found");
+
+            var orderResponseDto = _mapper.Map<OrderResponseDto>(order);
+
+            return orderResponseDto;
+        }
+
+        public async Task<OrderResponseDto> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus)
+        {
+            var order = await _unitOfWork.Order.GetByIdAsync(orderId) ?? 
+                 throw new NotFoundException("Not found order");
+
+            if(! IsValidStatusTransition(order.Status, newStatus))
+            {
+                throw new ConflictException($"Cannot change status from {order.Status} to {newStatus}");
+            }
+            
+            order.Status = newStatus;
+            await _unitOfWork.SaveChangesAsync();
+
+            var result = _mapper.Map<OrderResponseDto>(order);
+
+            return result;
+        }
+
+        private bool IsValidStatusTransition(OrderStatus current, OrderStatus next)
+        {
+            return (current, next) switch
+            {
+                // Standard forward progression
+                (OrderStatus.Pending, OrderStatus.Preparing) => true,
+                (OrderStatus.Preparing, OrderStatus.Delivered) => true,
+
+                // Allow cancel from early stages
+                (OrderStatus.Pending, OrderStatus.Canceled) => true,
+                (OrderStatus.Preparing, OrderStatus.Canceled) => true,
+
+                // Allow failure from any non-final state
+                (OrderStatus.Pending, OrderStatus.Failed) => true,
+                (OrderStatus.Preparing, OrderStatus.Failed) => true,
+
+                _ => false
+            };
+        }
+
     }
 }

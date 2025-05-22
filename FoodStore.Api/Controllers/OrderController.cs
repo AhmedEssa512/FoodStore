@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using FoodStore.Data.DTOS;
 using FoodStore.Data.Entities;
-// using FoodStore.Service.DTOS;
 using FoodStore.Service.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +14,7 @@ namespace FoodStore.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Customer,Admin")]
-    public class OrderController : ControllerBase
+    public class OrderController : BaseApiController
     {
         private readonly IOrderService _orderService;
 
@@ -24,68 +23,54 @@ namespace FoodStore.Api.Controllers
             _orderService = orderService;
         }
 
-        [HttpPost("orders")]
-        public async Task<IActionResult> AddOrderAsync([FromBody]OrderDto orderDto){
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody]OrderDto orderDto)
+        {
+            await _orderService.AddOrderAsync(UserId,orderDto);
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState); 
-            }
-
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            await _orderService.AddOrderAsync(userId,orderDto);
-
-            return Ok(new {Message ="Added successfully."});
+            return Ok(new { Message = "Added successfully." });
         }
 
-        [HttpDelete("orders/{orderId}")]
-        public async Task<IActionResult> DeleteOrderAsync(int  orderId){
-
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            await _orderService.DeleteOrderAsync(userId,orderId);
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int  id)
+        {
+            await _orderService.DeleteOrderAsync(UserId, id);
 
             return NoContent();
         }
 
-        [HttpDelete("orders/items/{orderItemId}")]
-        public async Task<IActionResult> DeleteOrderItemAsync(int  orderItemId){
 
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] OrderDto orderDto)
+        {
+            await _orderService.UpdateOrderAsync(UserId, id, orderDto);
 
-            await _orderService.DeleteOrderItemAsync(userId,orderItemId);
-
-            return NoContent();
+            return Ok(new { Message = "Updated successfully." });
         }
 
-        [HttpPut("orders/items/{orderItemId}")]
-        public async Task<IActionResult> UpdateOrderItemAsync(int orderItemId,[FromBody] int quantity)
+        [HttpGet]
+        public async Task<IActionResult> GetAllOrders()
         {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState); 
-            }
-
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            await _orderService.UpdateOrderAsync(userId,orderItemId,quantity);
-
-            return Ok(new {Message ="Updated successfully."});
-        }
-
-        [HttpGet("orders")]
-        public async Task<IActionResult> GetOrdersAsync()
-        {
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var orders = await _orderService.GetOrdersAsync(userId);
+            var orders = await _orderService.GetOrdersAsync(UserId);
 
             return Ok(orders);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var order = await _orderService.GetOrderByIdAsync(id);
+
+            return Ok(order);
+        }
+
+        [HttpPatch("{orderId}/status")]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId , [FromBody] OrderStatus newStatus)
+        {
+            var order = await _orderService.UpdateOrderStatusAsync(orderId , newStatus);
+
+            return Ok(order);
+        }
 
    
     }

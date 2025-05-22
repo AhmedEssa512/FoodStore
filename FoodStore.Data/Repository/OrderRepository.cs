@@ -18,7 +18,7 @@ namespace FoodStore.Service.Repository
             _context = context;
         }
 
-        public async Task<List<Order>> GetOrdersAsync(string userId)
+        public async Task<IReadOnlyList<Order>> GetOrdersAsync(string userId)
         {
             return await _context.orders
             .Include(od => od.OrderDetails)
@@ -26,13 +26,13 @@ namespace FoodStore.Service.Repository
             .ToListAsync();
         }
 
-        public async Task<Order?> GetOrderWithOrderDetailsAsync(int orderId)
+        public async Task<Order?> GetOrderWithDetailsAsync(int orderId)
         {
             return await _context.orders
-            .Include(od => od.OrderDetails)
+            .AsNoTracking()
+            .Include(o => o.OrderDetails)
+            .ThenInclude(o => o.Food)
             .FirstOrDefaultAsync(o => o.Id == orderId);
         }
-
-        
     }
 }

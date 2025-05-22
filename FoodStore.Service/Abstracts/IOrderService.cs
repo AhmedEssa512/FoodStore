@@ -11,9 +11,10 @@ namespace FoodStore.Service.Abstracts
     {
        Task AddOrderAsync(string userId,OrderDto orderDto);
        Task DeleteOrderAsync(string userId,int orderId);
-       Task DeleteOrderItemAsync(string userId,int orderItemId);
-       Task UpdateOrderAsync(string userId,int orderItemId,int quantity);
-       Task<List<Order>> GetOrdersAsync(string UserId);
+       Task UpdateOrderAsync(string userId, int orderId, OrderDto orderDto);
+       Task<OrderResponseDto> GetOrderByIdAsync(int orderId);
+       Task<IReadOnlyList<Order>> GetOrdersAsync(string UserId);
+       Task<OrderResponseDto> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus);
 
 
     }

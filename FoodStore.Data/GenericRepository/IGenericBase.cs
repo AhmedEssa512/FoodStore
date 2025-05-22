@@ -9,7 +9,7 @@ namespace FoodStore.Data.GenericRepository
     public interface IGenericBase<T> where T : class
     {
 
-        Task<T> GetByIdAsync(int id);
+        Task<T?> GetByIdAsync(int id);
         Task<T> AddAsync(T entity);
         Task AddRangeAsync(ICollection<T> entities);
         Task UpdateAsync(T entity);
