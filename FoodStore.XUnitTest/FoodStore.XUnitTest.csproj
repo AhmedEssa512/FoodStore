@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FoodStore.Data\FoodStore.Data.csproj" />
-    <ProjectReference Include="..\FoodStore.Service\FoodStore.Service.csproj" />
+    <ProjectReference Include="..\FoodStore.Services\FoodStore.Services.csproj" />
     <ProjectReference Include="..\FoodStore.Api\FoodStore.Api.csproj" />
   </ItemGroup>
 

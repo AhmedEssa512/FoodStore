@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FoodStore.Data.DTOS;
-using FoodStore.Data.Entities;
-using FoodStore.Service.Abstracts;
+using FoodStore.Contracts.DTOs.Category;
+using FoodStore.Contracts.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 
 namespace FoodStore.Api.Controllers
 {
@@ -54,14 +48,14 @@ namespace FoodStore.Api.Controllers
 
              await _categoryService.UpdateCategoryAsync(id,categoryDto);
 
-             return Ok(new { Message ="Updated successfully." });
+             return NoContent();
 
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-             var category = await _categoryService.GetCategoryAsync(id);
+             var category = await _categoryService.GetCategoryByIdAsync(id);
              return Ok(category);
         }
 

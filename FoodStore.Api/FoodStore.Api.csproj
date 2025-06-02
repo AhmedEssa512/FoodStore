@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
@@ -18,7 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FoodStore.Service\FoodStore.Service.csproj" />
+    <ProjectReference Include="..\FoodStore.Services\FoodStore.Services.csproj" />
+    <ProjectReference Include="..\FoodStore.Contracts\FoodStore.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

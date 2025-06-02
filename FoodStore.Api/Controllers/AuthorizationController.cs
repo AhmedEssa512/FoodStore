@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using FoodStore.Contracts.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
-using System.Threading.Tasks;
-using FoodStore.Service.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using FoodStore.Data.DTOS;
 
 namespace FoodStore.Api.Controllers
 {
@@ -14,9 +9,9 @@ namespace FoodStore.Api.Controllers
     [Authorize(Roles = "Admin")]
     public class AuthorizationController : ControllerBase
     {
-        private readonly Service.Authorization.IAuthorizationService _authorizationService;
+        private readonly Contracts.Interfaces.Security.IAuthorizationService _authorizationService;
 
-        public AuthorizationController(Service.Authorization.IAuthorizationService authorizationService)
+        public AuthorizationController(Contracts.Interfaces.Security.IAuthorizationService authorizationService)
         {
             _authorizationService = authorizationService;
         }
@@ -34,7 +29,7 @@ namespace FoodStore.Api.Controllers
             if(!ModelState.IsValid)
              return BadRequest(ModelState);
              
-            await _authorizationService.AddRoleAsync(roleDto);
+            await _authorizationService.AddRoleAsync(roleDto.Name);
 
             return Ok(new {Message="Added successfully"});
         }
@@ -46,7 +41,7 @@ namespace FoodStore.Api.Controllers
             if(!ModelState.IsValid)
              return BadRequest(ModelState);
 
-            await _authorizationService.UpdateRoleAsync(roleId,roleDto);
+            await _authorizationService.UpdateRoleAsync(roleId, roleDto.Name);
 
             return Ok(new {Message="Updated successfully."});
         }
@@ -64,7 +59,7 @@ namespace FoodStore.Api.Controllers
             if(!ModelState.IsValid)
              return BadRequest(ModelState);
 
-             await _authorizationService.AddUserToRoleAsync(userRoleDto);
+             await _authorizationService.AddUserToRoleAsync(userRoleDto.Email , userRoleDto.RoleName);
 
              return Ok(new {Message ="Added successfully."});
         }
@@ -75,7 +70,7 @@ namespace FoodStore.Api.Controllers
             if(!ModelState.IsValid)
              return BadRequest(ModelState);
 
-             await _authorizationService.DeleteUserFromRoleAsync(userRoleDto);
+             await _authorizationService.DeleteUserFromRoleAsync(userRoleDto.Email , userRoleDto.RoleName);
 
              return NoContent();
         }

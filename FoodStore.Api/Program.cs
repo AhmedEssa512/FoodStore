@@ -1,15 +1,9 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using FoodStore.Data.Entities;
-using FoodStore.Service;
-using FoodStore.Service.Authorization;
-using FoodStore.Service.Authentication;
+using FoodStore.Services;
 using FoodStore.Data.Context;
-using FoodStore.Data.DTOS;
-using FoodStore.Data.GenericRepository;
-using FoodStore.Service.Abstracts;
-using FoodStore.Service.Implementations;
-using FoodStore.Service.Seeds;
+using FoodStore.Services.Seeds;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +14,7 @@ using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using FoodStore.Api.Middleware;
-using FoodStore.Service.Mappings;
+using FoodStore.Contracts.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +26,8 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 // Load JWT settings from the configuration
 var jwtSettingsSection = builder.Configuration.GetSection("JWT");
 var jwtSettings = jwtSettingsSection.Get<JWT>();
+
+builder.Services.Configure<JWT>(jwtSettingsSection);
 
  builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -56,8 +52,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidIssuer = jwtSettings!.Issuer,
-                        ValidAudience = jwtSettings!.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings!.Key))
+                        ValidAudience = jwtSettings.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
                     };
 
                     o.Events = new JwtBearerEvents
@@ -74,13 +70,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                     };
                 });
 
-            // builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
                                             
              builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-             builder.Services.AddServiceDependencies(builder.Configuration); 
+             builder.Services.AddServicesDependencies(builder.Configuration); 
 
                builder.Services.Configure<RequestLocalizationOptions>(options =>
             {
@@ -108,7 +103,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
     builder.Services.AddMemoryCache();
 
-builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+        
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 

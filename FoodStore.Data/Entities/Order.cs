@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using FoodStore.Data.Entities.Enums;
 using Microsoft.AspNetCore.Identity;
 // using Microsoft.Identity;
 
@@ -21,7 +22,7 @@ namespace FoodStore.Data.Entities
         public decimal Total { get; set; }
         public required string UserId { get; set; }
         public  ApplicationUser? User { get; set; }
-        public  ICollection<OrderDetail> OrderDetails { get; set; } = [];
+        public  ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
 
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FoodStore.Service.Exceptions;
+using FoodStore.Services.Exceptions;
 
 namespace FoodStore.Api.Middleware
 {
@@ -43,6 +43,10 @@ namespace FoodStore.Api.Middleware
             catch (OperationFailedException ex)
             {
                 await WriteJsonErrorResponse(httpContext, StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (BadRequestException ex)
+            {
+                await WriteJsonErrorResponse(httpContext, StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (UnauthorizedAccessException ex)
             {

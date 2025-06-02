@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FoodStore.Data.DTOS;
-using FoodStore.Data.Entities;
-using FoodStore.Service.Authentication;
+using FoodStore.Contracts.DTOs.Auth;
+using FoodStore.Contracts.Interfaces.Security;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
+
 
 namespace FoodStore.Api.Controllers
 {
@@ -17,54 +11,52 @@ namespace FoodStore.Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authservice;
-        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AuthController(IAuthService authservice , SignInManager<ApplicationUser> signInManager)
+        public AuthController(IAuthService authservice)
         {
             _authservice = authservice ;
-            _signInManager = signInManager;
         }
 
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAsync([FromBody]UserDto userDto)
+        public async Task<IActionResult> RegisterAsync([FromBody]RegisterRequestDto registerRequestDto)
         {
             if(!ModelState.IsValid)
              return BadRequest(ModelState);
 
-              var result = await _authservice.RegisterAsync(userDto);
+            var result = await _authservice.RegisterAsync(registerRequestDto);
 
-            if(!result.IsAuthenticated)
-               return Unauthorized(new { message = result.Message });
+            if(!result.Response.AccountCreated)
+               return Unauthorized(result.Response.Message);
 
-            if(!string.IsNullOrEmpty(result.Token))
-               SetAccessTokenInCookie(result.Token, result.ExpiresOn);
+            if(!string.IsNullOrEmpty(result.AccessToken))
+               SetAccessTokenInCookie(result.AccessToken, result.AccessTokenExpiry);
 
             if(!string.IsNullOrEmpty(result.RefreshToken))
-               SetRefreshTokenInCookie(result.RefreshToken,result.RefreshTokenExpiration);
+               SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiry);
 
-               return Ok(result);
+               return Ok(result.Response);
         }
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> LogInAsync([FromBody]LogInDto userDto)
+        public async Task<IActionResult> LogInAsync([FromBody] LoginRequestDto loginRequestDto)
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-                var result = await _authservice.LogInAsync(userDto);
+            var result = await _authservice.LogInAsync(loginRequestDto);
 
-            if(!result.IsAuthenticated)
-               return Unauthorized(new { message = result.Message });
+            if(!result.Response.IsAuthenticated)
+               return Unauthorized(new { message = "Password or email is incorrect" });
 
             if(!string.IsNullOrEmpty(result.RefreshToken))
-                SetRefreshTokenInCookie(result.RefreshToken,result.RefreshTokenExpiration);
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiry);
 
-            if(!string.IsNullOrEmpty(result.Token))
-            SetAccessTokenInCookie(result.Token, result.ExpiresOn);
+            if(!string.IsNullOrEmpty(result.AccessToken))
+               SetAccessTokenInCookie(result.AccessToken, result.AccessTokenExpiry);
 
-            return Ok(result);
+            return Ok(result.Response);
         }
 
         [HttpPost("refresh-token")]
@@ -72,18 +64,21 @@ namespace FoodStore.Api.Controllers
         {
             var refreshToken = Request.Cookies["refresh_token"];
 
+            if(refreshToken == null)
+                return Unauthorized();
+
             var result = await _authservice.RefreshTokenAsync(refreshToken);
 
-            if (!result.IsAuthenticated)
-                return Unauthorized(result);
+            if (!result.Response.IsAuthenticated)
+                return Unauthorized(new { message = "Invalid token" });
 
             if(!string.IsNullOrEmpty(result.RefreshToken))
-            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiry);
             
-            if(!string.IsNullOrEmpty(result.Token))
-            SetAccessTokenInCookie(result.Token, result.ExpiresOn);
+            if(!string.IsNullOrEmpty(result.AccessToken))
+                SetAccessTokenInCookie(result.AccessToken, result.AccessTokenExpiry);
             
-            return Ok(result);
+            return Ok(result.Response);
         }
 
 
@@ -91,18 +86,18 @@ namespace FoodStore.Api.Controllers
         [HttpPost("revoke-token")]
         public async Task<IActionResult> RevokeToken([FromBody] RevokeToken dto)
         {
-            var token = dto.Token ?? Request.Cookies["refresh_token"];
+            var token = Request.Cookies["refresh_token"] ??  dto.Token  ;
 
             if (string.IsNullOrEmpty(token))
             {
-                return BadRequest(new { Message = "Token is required!" });
+                return BadRequest(new { message = "Token is required!" });
             }
 
             var result = await _authservice.RevokeTokenAsync(token);
 
             if(!result)
             {
-                return BadRequest(new { Message = "Token is invalid!" });
+                return BadRequest(new { message = "Invalid token" });
             }
 
             Response.Cookies.Delete("refresh_token", new CookieOptions

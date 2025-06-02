@@ -1,0 +1,16 @@
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStore.BusinessLogic.csproj.AssemblyReference.cache
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStore.BusinessLogic.GeneratedMSBuildEditorConfig.editorconfig
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStore.BusinessLogic.AssemblyInfoInputs.cache
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStore.BusinessLogic.AssemblyInfo.cs
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStore.BusinessLogic.csproj.CoreCompileInputs.cache
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStore.BusinessLogic.sourcelink.json
+E:\FoodStore\FoodStore.BusinessLogic\bin\Debug\net8.0\FoodStore.BusinessLogic.deps.json
+E:\FoodStore\FoodStore.BusinessLogic\bin\Debug\net8.0\FoodStore.BusinessLogic.dll
+E:\FoodStore\FoodStore.BusinessLogic\bin\Debug\net8.0\FoodStore.BusinessLogic.pdb
+E:\FoodStore\FoodStore.BusinessLogic\bin\Debug\net8.0\FoodStore.Data.dll
+E:\FoodStore\FoodStore.BusinessLogic\bin\Debug\net8.0\FoodStore.Data.pdb
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStor.6EE0A5E8.Up2Date
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStore.BusinessLogic.dll
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\refint\FoodStore.BusinessLogic.dll
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\FoodStore.BusinessLogic.pdb
+E:\FoodStore\FoodStore.BusinessLogic\obj\Debug\net8.0\ref\FoodStore.BusinessLogic.dll

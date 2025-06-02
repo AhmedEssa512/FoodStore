@@ -1,59 +1,58 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using FoodStore.Data.DTOS;
-using FoodStore.Data.Entities;
-using FoodStore.Service.Abstracts;
+using FoodStore.Contracts.DTOs.Food;
+using FoodStore.Contracts.Interfaces;
+using FoodStore.Contracts.QueryParams;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodStore.Api.Controllers
 {
     [ApiController]
-    [Route("api/foods")]
+    [Route("api/[controller]")]
     public class FoodController : ControllerBase
     {
         private readonly IFoodService _foodService;
-        private readonly IMapper _mapper;
         private readonly IImageService _imageService;
 
-        public FoodController(IFoodService foodService, IMapper mapper, IImageService imageService)
+        public FoodController(IFoodService foodService, IImageService imageService)
         {
             _foodService = foodService;
-            _mapper = mapper;
             _imageService = imageService;
         }
 
         
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        [ProducesResponseType(typeof(FoodDto), 201)]
+        [ProducesResponseType(typeof(FoodResponseDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> Create([FromForm]FoodCreateDto foodCreateDto)
+        public async Task<IActionResult> Create([FromForm] FoodCreateDto foodCreateDto , IFormFile file)
         {
+            if (foodCreateDto == null)
+                return BadRequest("Food data is required.");
 
-            var createdFood = await _foodService.CreateFoodAsync(foodCreateDto);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var resultDto = _mapper.Map<FoodDto>(createdFood);
+            if (file == null || file.Length == 0)
+                return BadRequest("Image is required");
+
+            using var stream = file.OpenReadStream();
+
+            var createdFood = await _foodService.CreateFoodAsync(foodCreateDto, stream, file.FileName);
         
             return CreatedAtAction(
                    nameof(GetById),  
-                   new { id = resultDto.Id },  
-                   resultDto  
+                   new { id = createdFood.Id },  
+                   createdFood  
                  );
         } 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var food = await _foodService.GetFoodAsync(id);
+            var foodDto = await _foodService.GetFoodByIdAsync(id);
 
-            var resultDto = _mapper.Map<FoodDto>(food);
-           
-            return Ok(resultDto);
+            return Ok(foodDto);
         }
 
         [HttpDelete("{id}")]
@@ -67,11 +66,26 @@ namespace FoodStore.Api.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(int id, [FromForm] FoodUpdateDto foodDto)
+        public async Task<IActionResult> Update(int id, [FromForm] FoodUpdateDto foodUpdateDto, IFormFile? file = null)
         {       
-            await _foodService.UpdateFoodAsync(id,foodDto);
+            if (foodUpdateDto == null)
+                return BadRequest("Food data is required.");
 
-            return Ok(new { Message ="Updated successfully." });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            Stream? imageStream = null;
+            string? originalFileName = null; 
+
+            if(file != null)
+            {
+               imageStream = file.OpenReadStream();
+               originalFileName = file.FileName;
+            }
+
+            await _foodService.UpdateFoodAsync(id, foodUpdateDto, imageStream, originalFileName);
+
+            return NoContent();
         }
 
         [HttpGet]
@@ -83,18 +97,9 @@ namespace FoodStore.Api.Controllers
                 PageSize = queryParams.PageSize
             };
 
-            var result = await _foodService.GetFoodsAsync(pagination, queryParams.CategoryId);
-            var dtoList = _mapper.Map<IEnumerable<FoodDto>>(result.Items);
-
-            var response = new PagedResponse<FoodDto>
-            {
-                Data = dtoList,
-                PageNumber = pagination.PageNumber,
-                PageSize = pagination.PageSize,
-                TotalCount = result.TotalCount
-            };
+            var paginatedResult = await _foodService.GetFoodsAsync(pagination, queryParams.CategoryId);
             
-            return Ok(response);
+            return Ok(paginatedResult);
         }
 
         [HttpGet("search")]
@@ -103,19 +108,9 @@ namespace FoodStore.Api.Controllers
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest("Search query is required.");
                 
-            var result = await _foodService.SearchFoodsAsync(query,paginationParams);
+            var paginatedResult = await _foodService.SearchFoodsAsync(query,paginationParams);
 
-            var dtoList = _mapper.Map<IEnumerable<FoodDto>>(result.Items);
-
-             var response = new PagedResponse<FoodDto>
-            {
-                Data = dtoList,
-                PageNumber = paginationParams.PageNumber,
-                PageSize = paginationParams.PageSize,
-                TotalCount = result.TotalCount
-            };
-            
-            return Ok(response);
+            return Ok(paginatedResult);
         }
 
         [HttpPost("batch")]
@@ -124,10 +119,9 @@ namespace FoodStore.Api.Controllers
             if (ids == null || ids.Count == 0)
                 return BadRequest("A list of food IDs must be provided.");
 
-            var foods = await _foodService.GetFoodDetailsByIdsAsync(ids);
+            var responseDtos = await _foodService.GetFoodDetailsByIdsAsync(ids);
 
-            var respone = _mapper.Map<IEnumerable<FoodDto>>(foods);
-            return Ok(respone);
+            return Ok(responseDtos);
         }        
 
 

@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using FoodStore.Data.DTOS;
-using FoodStore.Data.Entities;
-using FoodStore.Service.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using FoodStore.Data.Entities.Enums;
+using FoodStore.Contracts.DTOs.Order;
+using FoodStore.Contracts.Interfaces;
 
 namespace FoodStore.Api.Controllers
 {
@@ -51,7 +46,7 @@ namespace FoodStore.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
-            var orders = await _orderService.GetOrdersAsync(UserId);
+            var orders = await _orderService.GetUserOrdersAsync(UserId);
 
             return Ok(orders);
         }
@@ -65,9 +60,9 @@ namespace FoodStore.Api.Controllers
         }
 
         [HttpPatch("{orderId}/status")]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId , [FromBody] OrderStatus newStatus)
+        public async Task<IActionResult> UpdateOrderStatus(int orderId , [FromBody] UpdateOrderStatusRequest request)
         {
-            var order = await _orderService.UpdateOrderStatusAsync(orderId , newStatus);
+            var order = await _orderService.UpdateOrderStatusAsync(orderId , request.NewStatus);
 
             return Ok(order);
         }

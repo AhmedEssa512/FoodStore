@@ -1,0 +1,16 @@
+E:\FoodStore\FoodStore.Service\bin\Debug\net8.0\FoodStore.Service.deps.json
+E:\FoodStore\FoodStore.Service\bin\Debug\net8.0\FoodStore.Service.dll
+E:\FoodStore\FoodStore.Service\bin\Debug\net8.0\FoodStore.Service.pdb
+E:\FoodStore\FoodStore.Service\bin\Debug\net8.0\FoodStore.Data.dll
+E:\FoodStore\FoodStore.Service\bin\Debug\net8.0\FoodStore.Data.pdb
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStore.Service.csproj.AssemblyReference.cache
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStore.Service.GeneratedMSBuildEditorConfig.editorconfig
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStore.Service.AssemblyInfoInputs.cache
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStore.Service.AssemblyInfo.cs
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStore.Service.csproj.CoreCompileInputs.cache
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStore.Service.sourcelink.json
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStor.540D4806.Up2Date
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStore.Service.dll
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\refint\FoodStore.Service.dll
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\FoodStore.Service.pdb
+E:\FoodStore\FoodStore.Service\obj\Debug\net8.0\ref\FoodStore.Service.dll

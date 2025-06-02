@@ -1,0 +1,12 @@
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\FoodStore.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\FoodStore.Contracts.AssemblyInfoInputs.cache
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\FoodStore.Contracts.AssemblyInfo.cs
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\FoodStore.Contracts.csproj.CoreCompileInputs.cache
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\FoodStore.Contracts.sourcelink.json
+E:\FoodStore\FoodStore.Contracts\bin\Debug\net8.0\FoodStore.Contracts.deps.json
+E:\FoodStore\FoodStore.Contracts\bin\Debug\net8.0\FoodStore.Contracts.dll
+E:\FoodStore\FoodStore.Contracts\bin\Debug\net8.0\FoodStore.Contracts.pdb
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\FoodStore.Contracts.dll
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\refint\FoodStore.Contracts.dll
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\FoodStore.Contracts.pdb
+E:\FoodStore\FoodStore.Contracts\obj\Debug\net8.0\ref\FoodStore.Contracts.dll

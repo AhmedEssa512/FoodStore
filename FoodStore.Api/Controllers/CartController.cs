@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using FoodStore.Data.DTOS;
-using FoodStore.Service.Abstracts;
+using FoodStore.Contracts.DTOs.Cart;
+using FoodStore.Contracts.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,14 +20,14 @@ namespace FoodStore.Api.Controllers
         [HttpPost("items")]
         public async Task<IActionResult> AddToCart([FromBody] CartItemDto cartItemDto)
         {
-                await _cartService.AddToCartAsync(UserId,cartItemDto);
+                await _cartService.AddToCartAsync(UserId, cartItemDto);
                 return Ok(new {Message ="Added successfully."});
         }
 
         [HttpGet("items")]
         public async Task<IActionResult> GetCartAsync()
         {
-                var cart = await _cartService.GetCartItemsAsync(UserId);
+                var cart = await _cartService.GetUserCartAsync(UserId);
                 return Ok(cart);
         }
 
