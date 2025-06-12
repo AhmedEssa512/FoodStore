@@ -2,8 +2,11 @@
 FoodStore.Api/bin/
 FoodStore.Api/obj/
 
-FoodStore.Service/bin/
-FoodStore.Service/obj/
+FoodStore.Contracts/bin/
+FoodStore.Contracts/obj/
+
+FoodStore.Services/bin/
+FoodStore.Services/obj/
 
 FoodStore.Data/bin/
 FoodStore.Data/obj/

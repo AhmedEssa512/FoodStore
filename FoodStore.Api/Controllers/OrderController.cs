@@ -8,7 +8,6 @@ namespace FoodStore.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Customer,Admin")]
     public class OrderController : BaseApiController
     {
         private readonly IOrderService _orderService;
@@ -19,23 +18,25 @@ namespace FoodStore.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Create([FromBody]OrderDto orderDto)
         {
-            await _orderService.AddOrderAsync(UserId,orderDto);
+            await _orderService.CreateOrderAsync(UserId,orderDto);
 
             return Ok(new { Message = "Added successfully." });
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int  id)
         {
             await _orderService.DeleteOrderAsync(UserId, id);
-
             return NoContent();
         }
 
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Update(int id, [FromBody] OrderDto orderDto)
         {
             await _orderService.UpdateOrderAsync(UserId, id, orderDto);
@@ -44,7 +45,7 @@ namespace FoodStore.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetUserOrders()
         {
             var orders = await _orderService.GetUserOrdersAsync(UserId);
 
@@ -52,6 +53,7 @@ namespace FoodStore.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int id)
         {
             var order = await _orderService.GetOrderByIdAsync(id);
@@ -60,6 +62,7 @@ namespace FoodStore.Api.Controllers
         }
 
         [HttpPatch("{orderId}/status")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId , [FromBody] UpdateOrderStatusRequest request)
         {
             var order = await _orderService.UpdateOrderStatusAsync(orderId , request.NewStatus);

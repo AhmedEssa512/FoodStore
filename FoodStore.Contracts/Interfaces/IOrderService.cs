@@ -4,7 +4,7 @@ namespace FoodStore.Contracts.Interfaces
 {
     public interface IOrderService 
     {
-       Task AddOrderAsync(string userId,OrderDto orderDto);
+       Task CreateOrderAsync(string userId,OrderDto orderDto);
        Task DeleteOrderAsync(string userId,int orderId);
        Task UpdateOrderAsync(string userId, int orderId, OrderDto orderDto);
        Task<OrderResponseDto> GetOrderByIdAsync(int orderId);

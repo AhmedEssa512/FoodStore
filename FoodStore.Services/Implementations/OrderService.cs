@@ -19,7 +19,7 @@ namespace FoodStore.Services.Implementations
              _mapper = mapper;
           }
 
-        public async Task AddOrderAsync(string userId, OrderDto orderDto)
+        public async Task CreateOrderAsync(string userId, OrderDto orderDto)
         {
 
             await _unitOfWork.BeginTransactionAsync();
