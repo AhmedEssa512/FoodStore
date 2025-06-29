@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FoodStore.Contracts.DTOs.Category;
 using FoodStore.Data.Entities;
+using FoodStore.Data.Repositories.Interfaces;
 using FoodStore.Services.Implementations;
 
 
@@ -31,14 +33,13 @@ namespace FoodStore.XUnitTest.Servcies
         var categoryDto = new CategoryDto
         {
             Name = "Electronics",
-            Description = "Various electronic items"
         };
 
         // Act
         await _service.AddCategoryAsync(categoryDto);
 
         // Assert
-        _mockCategoryRepository.Verify(repo => repo.AddAsync(It.Is<Category>(c => c.Name == categoryDto.Name && c.Description == categoryDto.Description)), Times.Once);
+        _mockCategoryRepository.Verify(repo => repo.AddAsync(It.Is<Category>(c => c.Name == categoryDto.Name)), Times.Once);
         _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
     }
     

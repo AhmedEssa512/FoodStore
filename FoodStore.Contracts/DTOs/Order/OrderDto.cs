@@ -8,6 +8,8 @@ namespace FoodStore.Contracts.DTOs.Order
 {
     public class OrderDto
     {
+        [Required(ErrorMessage = "Name is required.")]
+        public required string FullName { get; set; }
         [Required(ErrorMessage = "Address is required.")]
         public required string Address { get; set; }
         [Required(ErrorMessage = "Phone number is required.")]

@@ -7,6 +7,6 @@ namespace FoodStore.Contracts.DTOs.Auth
 {
     public class RevokeToken
     {
-        public required string Token { get; set; }
+        public string? Token { get; set; }
     }
 }

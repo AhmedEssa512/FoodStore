@@ -9,6 +9,7 @@ namespace FoodStore.Contracts.DTOs.Order
     public class OrderResponseDto
     {
         public int Id { get; set; }
+        public required string FullName { get; set; }
         public required string Address { get; set; }
         public required string Phone { get; set; }
         public DateTime CreatedAt { get; set; }

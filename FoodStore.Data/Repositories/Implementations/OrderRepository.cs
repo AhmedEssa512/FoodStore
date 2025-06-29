@@ -16,7 +16,9 @@ namespace FoodStore.Data.Repositories.Implementations
         public async Task<IReadOnlyList<Order>> GetOrdersAsync(string userId)
         {
             return await _context.orders
+            .AsNoTracking()
             .Include(od => od.OrderDetails)
+            .ThenInclude(f => f.Food)
             .Where(o => o.UserId == userId)
             .ToListAsync();
         }

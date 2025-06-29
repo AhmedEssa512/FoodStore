@@ -11,8 +11,9 @@ namespace FoodStore.Data.Entities
 {
     public class Order
     {
-
         public int Id { get; set; }
+        [Required]
+        public required string FullName { get; set; }
         [Required]
         public required string Address { get; set; }
         [Required]
@@ -23,8 +24,6 @@ namespace FoodStore.Data.Entities
         public required string UserId { get; set; }
         public  ApplicationUser? User { get; set; }
         public  ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-
-
     }
 
 
