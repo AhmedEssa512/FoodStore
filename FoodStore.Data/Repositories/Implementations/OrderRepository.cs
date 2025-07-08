@@ -2,6 +2,7 @@ using FoodStore.Data.Entities;
 using FoodStore.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using FoodStore.Data.Repositories.Interfaces;
+using FoodStore.Data.Projections;
 
 namespace FoodStore.Data.Repositories.Implementations
 {
@@ -13,23 +14,44 @@ namespace FoodStore.Data.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<IReadOnlyList<Order>> GetOrdersAsync(string userId)
+        public async Task<IReadOnlyList<OrderSummary>> GetOrderSummariesAsync(string userId)
         {
             return await _context.orders
-            .AsNoTracking()
-            .Include(od => od.OrderDetails)
-            .ThenInclude(f => f.Food)
-            .Where(o => o.UserId == userId)
-            .ToListAsync();
+                .AsNoTracking()
+                .Where(o => o.UserId == userId)
+                .Select(o => new OrderSummary
+                {
+                    Id = o.Id,
+                    FullName = o.FullName,
+                    Status = o.Status,
+                    Total = o.Total,
+                    CreatedAt = o.CreatedAt
+                })
+                .ToListAsync();
         }
 
-        public async Task<Order?> GetOrderWithDetailsAsync(int orderId)
+        public async Task<OrderWithDetails?> GetOrderWithDetailsAsync(int orderId)
         {
             return await _context.orders
-            .AsNoTracking()
-            .Include(o => o.OrderDetails)
-            .ThenInclude(o => o.Food)
-            .FirstOrDefaultAsync(o => o.Id == orderId);
-        }
+                .AsNoTracking()
+                .Where(o => o.Id == orderId)
+                .Select(o => new OrderWithDetails
+                {
+                    Id = o.Id,
+                    FullName = o.FullName,
+                    Address = o.Address,
+                    Phone = o.Phone,
+                    CreatedAt = o.CreatedAt,
+                    Status = o.Status.ToString(),
+                    Total = o.Total,
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailProjection
+                    {
+                        FoodName = od.Food!.Name,
+                        Price = od.UnitPrice,
+                        Quantity = od.Quantity,
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+                }
     }
 }

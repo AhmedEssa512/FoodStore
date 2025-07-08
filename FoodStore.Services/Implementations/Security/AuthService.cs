@@ -255,6 +255,21 @@ namespace FoodStore.Services.Implementations.Security
             return true;
         }
 
+        public Task<UserInfoDto> GetCurrentUserAsync(ClaimsPrincipal user)
+        {
+            var email = user.FindFirst(ClaimTypes.Email)?.Value;
+            var username = user.Identity?.Name;
+            var roles = user.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
+
+            var dto = new UserInfoDto
+            {
+                Email = email,
+                Username = username,
+                Roles = roles
+            };
+
+            return Task.FromResult(dto);
+        }
 
 
 
@@ -272,8 +287,10 @@ namespace FoodStore.Services.Implementations.Security
 
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName!), 
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), 
+            // new Claim(JwtRegisteredClaimNames.Sub, user.UserName!), 
+            // new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), 
+            new Claim(ClaimTypes.Email, user.Email!),           
+            new Claim(ClaimTypes.Name, user.UserName!),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!), 
             new Claim(ClaimTypes.NameIdentifier, user.Id) 
         }

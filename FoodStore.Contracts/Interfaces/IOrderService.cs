@@ -8,7 +8,7 @@ namespace FoodStore.Contracts.Interfaces
        Task DeleteOrderAsync(string userId,int orderId);
        Task UpdateOrderAsync(string userId, int orderId, OrderDto orderDto);
        Task<OrderResponseDto> GetOrderByIdAsync(int orderId);
-       Task<IReadOnlyList<OrderResponseDto>> GetUserOrdersAsync(string UserId);
+       Task<IReadOnlyList<OrderListItemDto>> GetUserOrdersAsync(string UserId);
        Task<OrderResponseDto> UpdateOrderStatusAsync(int orderId, string newStatus);
 
 

@@ -155,5 +155,13 @@ namespace FoodStore.Api.Controllers
         {
             return Ok(new { IsAuthenticated = true });
         } 
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var user = await _authservice.GetCurrentUserAsync(User);
+            return Ok(user); 
+        }
     }
 }

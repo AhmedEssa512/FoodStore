@@ -93,7 +93,6 @@ namespace FoodStore.Services.Implementations
                 {
                     Id = item.Id,
                     Quantity = item.Quantity,
-                    Price = item.Price,
                     Food = new FoodInCartResponseDto
                     {
                         Id = item.Food!.Id,

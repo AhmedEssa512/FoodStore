@@ -15,7 +15,6 @@ namespace FoodStore.Contracts.DTOs.Order
         public DateTime CreatedAt { get; set; }
         public required string Status { get; set; }
         public decimal Total { get; set; }
-        public required string UserId { get; set; }
         public List<OrderDetailsDto> OrderDetails { get; set; } = new List<OrderDetailsDto>();
     }
 }

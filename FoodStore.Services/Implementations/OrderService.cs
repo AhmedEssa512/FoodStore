@@ -127,11 +127,18 @@ namespace FoodStore.Services.Implementations
             
         }
 
-        public async Task<IReadOnlyList<OrderResponseDto>> GetUserOrdersAsync(string UserId)
+        public async Task<IReadOnlyList<OrderListItemDto>> GetUserOrdersAsync(string UserId)
         {
-            var orders = await _unitOfWork.Order.GetOrdersAsync(UserId);
+            var orders = await _unitOfWork.Order.GetOrderSummariesAsync(UserId);
 
-            return _mapper.Map<IReadOnlyList<OrderResponseDto>>(orders);
+            return orders.Select(o => new OrderListItemDto
+                {
+                    Id = o.Id,
+                    FullName = o.FullName,
+                    Status = o.Status.ToString(),
+                    Total = o.Total,
+                    CreatedAt = o.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                }).ToList();
         }
 
         public async Task<OrderResponseDto> GetOrderByIdAsync(int orderId)
@@ -139,9 +146,22 @@ namespace FoodStore.Services.Implementations
             var order = await _unitOfWork.Order.GetOrderWithDetailsAsync(orderId) ??
                 throw new NotFoundException("Order not found");
 
-            var orderResponseDto = _mapper.Map<OrderResponseDto>(order);
-
-            return orderResponseDto;
+             return new OrderResponseDto
+            {
+                Id = order.Id,
+                FullName = order.FullName,
+                Address = order.Address,
+                Phone = order.Phone,
+                CreatedAt = order.CreatedAt,
+                Status = order.Status,
+                Total = order.Total,
+                OrderDetails = order.OrderDetails.Select(od => new OrderDetailsDto
+                {
+                    FoodName = od.FoodName,
+                    Price = od.Price,
+                    Quantity = od.Quantity,
+                }).ToList()
+            };
         }
 
         public async Task<OrderResponseDto> UpdateOrderStatusAsync(int orderId, string newStatus)
