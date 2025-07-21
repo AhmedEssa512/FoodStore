@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FoodStore.Api.Controllers
 {
     [ApiController]
-    [Route("api/categories")]
+    [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
