@@ -8,7 +8,7 @@ namespace FoodStore.Contracts.QueryParams
     public class PaginationParams
     {
         private const int MaxPageSize = 50;
-        private int _pageSize = 10;
+        private int _pageSize = 9;
         private int _pageNumber = 1;  
 
         public int PageNumber
@@ -23,7 +23,7 @@ namespace FoodStore.Contracts.QueryParams
             set
             {
                 if (value <= 0)
-                    _pageSize = 10;  
+                    _pageSize = 9;  
                 else
                     _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
             }

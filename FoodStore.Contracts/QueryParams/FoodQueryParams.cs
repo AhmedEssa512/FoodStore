@@ -11,7 +11,7 @@ namespace FoodStore.Contracts.QueryParams
         [Range(1, int.MaxValue)]
         public int PageNumber { get; set; } = 1;
         [Range(1, 50)]
-        public int PageSize { get; set; } = 10;
+        public int PageSize { get; set; } = 9;
         public int? CategoryId { get; set; }
     }
 }

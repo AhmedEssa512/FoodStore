@@ -15,8 +15,6 @@ namespace FoodStore.Contracts.DTOs.Food
         [Required]
         public decimal Price { get; set; }
         [Required]
-        public required string ImageUrl  { get; set; }
-        [Required]
         public int CategoryId { get; set; }
 
     }
