@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using FoodStore.Api.Middleware;
 using FoodStore.Contracts.Config;
+using FoodStore.Services.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,7 @@ var jwtSettings = jwtSettingsSection.Get<JWT>();
 
 builder.Services.Configure<JWT>(jwtSettingsSection);
 
- builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+ builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();;
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!));
@@ -100,6 +101,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                             .AllowAnyHeader();             
                     });
             });
+
+    builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+
+    var tokenLifespanMinutes = builder.Configuration.GetValue<int>("Identity:TokenLifespanMinutes");
+
+    builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+    {
+        options.TokenLifespan = TimeSpan.FromMinutes(tokenLifespanMinutes);
+    });
+    
 
     builder.Services.AddMemoryCache();
 

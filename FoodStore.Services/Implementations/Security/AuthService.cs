@@ -13,6 +13,11 @@ using AutoMapper;
 using FoodStore.Contracts.DTOs;
 using FoodStore.Services.Models;
 using FoodStore.Contracts.Interfaces.Security;
+using FoodStore.Contracts.Common;
+using System.Net;
+using FoodStore.Contracts.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 
 namespace FoodStore.Services.Implementations.Security
@@ -23,12 +28,18 @@ namespace FoodStore.Services.Implementations.Security
          private readonly UserManager<ApplicationUser> _userManager;
            private readonly JWT _jwt;
            private readonly IMapper _mapper;
+           private readonly IEmailService _emailService;
+           private readonly string _frontendBaseUrl;
+           private readonly ILogger<AuthService> _logger;
 
-         public AuthService(UserManager<ApplicationUser> userManager, IOptions<JWT> jwt, IMapper mapper)
+         public AuthService(UserManager<ApplicationUser> userManager, IOptions<JWT> jwt, IMapper mapper, IEmailService emailService, IConfiguration config,ILogger<AuthService> logger)
          {
             _userManager = userManager;
-             _jwt = jwt.Value;
-             _mapper = mapper;
+            _jwt = jwt.Value;
+            _mapper = mapper;
+            _emailService = emailService;
+            _frontendBaseUrl = config["Frontend:BaseUrl"]!;
+             _logger = logger;
          }
 
 
@@ -287,8 +298,6 @@ namespace FoodStore.Services.Implementations.Security
 
         var claims = new List<Claim>
         {
-            // new Claim(JwtRegisteredClaimNames.Sub, user.UserName!), 
-            // new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), 
             new Claim(ClaimTypes.Email, user.Email!),           
             new Claim(ClaimTypes.Name, user.UserName!),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!), 
@@ -315,8 +324,6 @@ namespace FoodStore.Services.Implementations.Security
 
 
 
-
-
         private RefreshToken GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
@@ -330,6 +337,74 @@ namespace FoodStore.Services.Implementations.Security
                 Token = Convert.ToBase64String(randomNumber),
                 ExpiresOn = DateTime.UtcNow.AddDays(10),
                 CreatedOn = DateTime.UtcNow
+            };
+        }
+
+        public async Task<OperationResult> ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null || string.IsNullOrWhiteSpace(user.Email))
+              {
+                return new OperationResult
+                {
+                    Success = true // for security
+                };
+              }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebUtility.UrlEncode(token);
+
+            var resetLink = $"{_frontendBaseUrl}/reset-password?email={user.Email}&token={encodedToken}";
+
+            var subject = "Reset Your Password";
+            var body =  $@"
+                        <p>Hello {user.UserName},</p>
+                        <p>Click the link below to reset your password:</p>
+                        <p><a href=""{resetLink}"">{resetLink}</a></p>
+                        <p><em>This link will expire in 15 minutes.</em></p>";
+                        
+            await _emailService.SendEmailAsync(user.Email, subject, body);
+
+            return new OperationResult { Success = true };
+        }
+
+        public async Task<OperationResult> ResetPasswordAsync(string email, string token, string newPassword)
+        {
+            _logger.LogInformation("Reset password requested for email: {Email}", email);
+            _logger.LogInformation("Encoded token: {Token}", token);
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                _logger.LogWarning("User not found for email: {Email}", email);
+                return new OperationResult
+                {
+                    Success = false,
+                    Errors = new List<string> { "Invalid email." }
+                };
+            }
+
+
+             var decodedToken = WebUtility.UrlDecode(token);
+            _logger.LogInformation("token: {decodedToken}", decodedToken);
+            _logger.LogInformation("New password: {NewPassword}", newPassword);
+
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    _logger.LogError("Password reset error: {Code} - {Description}", error.Code, error.Description);
+                }
+            }
+
+            return new OperationResult
+            {
+                Success = result.Succeeded,
+                Errors = result.Errors.Select(e => e.Description).ToList()
             };
         }
     }

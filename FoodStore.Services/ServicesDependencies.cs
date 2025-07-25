@@ -13,6 +13,7 @@ namespace FoodStore.Services
          public static IServiceCollection AddServicesDependencies(this IServiceCollection services, Microsoft.Extensions.Configuration.ConfigurationManager configuration)
         {
              services.AddTransient(typeof(IGenericBase<>), typeof(GenericBase<>));
+             services.AddTransient<IEmailService, EmailService>();
 
              services.AddScoped<ICategoryService,CategoryService>();
              services.AddScoped<IFoodService,FoodService>();

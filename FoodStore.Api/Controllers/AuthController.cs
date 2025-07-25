@@ -2,6 +2,8 @@ using FoodStore.Contracts.DTOs.Auth;
 using FoodStore.Contracts.Interfaces.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using FoodStore.Contracts.DTOs;
+using FoodStore.Contracts.Interfaces;
 
 
 namespace FoodStore.Api.Controllers
@@ -10,11 +12,13 @@ namespace FoodStore.Api.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authservice;
+        private readonly IAuthService _authService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IAuthService authservice)
+        public AuthController(IAuthService authService, IEmailService emailService)
         {
-            _authservice = authservice ;
+            _authService = authService ;
+            _emailService = emailService;
         }
 
 
@@ -24,7 +28,7 @@ namespace FoodStore.Api.Controllers
             if(!ModelState.IsValid)
              return BadRequest(ModelState);
 
-            var result = await _authservice.RegisterAsync(registerRequestDto);
+            var result = await _authService.RegisterAsync(registerRequestDto);
 
             if(!result.Response.AccountCreated)
                return Unauthorized(result.Response.Message);
@@ -45,7 +49,7 @@ namespace FoodStore.Api.Controllers
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authservice.LogInAsync(loginRequestDto);
+            var result = await _authService.LogInAsync(loginRequestDto);
 
             if(!result.Response.IsAuthenticated)
                return Unauthorized(new { message = "Password or email is incorrect" });
@@ -67,7 +71,7 @@ namespace FoodStore.Api.Controllers
             if(refreshToken == null)
                 return Unauthorized();
 
-            var result = await _authservice.RefreshTokenAsync(refreshToken);
+            var result = await _authService.RefreshTokenAsync(refreshToken);
 
             if (!result.Response.IsAuthenticated)
                 return Unauthorized(new { message = "Invalid token" });
@@ -93,7 +97,7 @@ namespace FoodStore.Api.Controllers
                 return BadRequest(new { message = "Token is required!" });
             }
 
-            var result = await _authservice.RevokeTokenAsync(token);
+            var result = await _authService.RevokeTokenAsync(token);
 
             if(!result)
             {
@@ -160,8 +164,41 @@ namespace FoodStore.Api.Controllers
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var user = await _authservice.GetCurrentUserAsync(User);
+            var user = await _authService.GetCurrentUserAsync(User);
             return Ok(user); 
+        }
+
+        [HttpPost("send")]
+        public async Task<IActionResult> Send([FromBody] MailRequest request)
+        {
+            await _emailService.SendEmailAsync(request.To, request.Subject, request.Body);
+            return Ok("Email sent successfully!");
+        }    
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
+        {
+           var result = await _authService.ForgotPasswordAsync(request.Email);
+
+             if (!result.Success)
+                return BadRequest(new { errors = result.Errors });
+            
+            return Ok(new { message = "A reset link has been sent the email." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+        {
+            var result = await _authService.ResetPasswordAsync(
+                request.Email,
+                request.Token,
+                request.NewPassword
+            );
+
+          //  if (!result.Success)
+          //      return BadRequest(new { errors = result.Errors });
+
+            return Ok(result);
         }
     }
 }

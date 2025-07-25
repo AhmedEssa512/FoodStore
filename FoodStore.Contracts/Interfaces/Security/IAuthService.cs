@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using FoodStore.Contracts.Common;
 using FoodStore.Contracts.DTOs;
 using FoodStore.Contracts.DTOs.Auth;
 
@@ -11,6 +12,7 @@ namespace FoodStore.Contracts.Interfaces.Security
         Task<AuthResultWrapper<RefreshTokenResponseDto>> RefreshTokenAsync(string refreshToken);
         Task<UserInfoDto> GetCurrentUserAsync(ClaimsPrincipal user);
         Task<bool> RevokeTokenAsync(string refreshToken);
-
+        Task<OperationResult> ForgotPasswordAsync(string email);
+        Task<OperationResult> ResetPasswordAsync(string email, string token, string newPassword);
     }
 }

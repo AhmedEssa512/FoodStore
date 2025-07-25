@@ -122,13 +122,7 @@ namespace FoodStore.Api.Controllers
             var responseDtos = await _foodService.GetFoodDetailsByIdsAsync(ids);
 
             return Ok(responseDtos);
-        }        
-
-
-
-
-
-
+        }
 
 
     }
