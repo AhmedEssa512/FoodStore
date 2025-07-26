@@ -129,9 +129,9 @@ namespace FoodStore.Services.Implementations
             var food =  await _unitOfWork.Food.GetByIdAsync(foodId) ??
              throw new NotFoundException($"Food with ID {foodId} was not found.");
 
-             var responseDto = _mapper.Map<FoodResponseDto>(food);
+             var result = _mapper.Map<FoodResponseDto>(food);
 
-             return responseDto;
+             return result;
         }
 
         public async Task<PagedResponse<FoodResponseDto>> GetFoodsAsync(PaginationParams paginationParams, int? categoryId = null)

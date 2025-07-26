@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FoodStore.Contracts.Common;
 using FoodStore.Services.Exceptions;
 
 namespace FoodStore.Api.Middleware
@@ -64,12 +65,7 @@ namespace FoodStore.Api.Middleware
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 
-            var response = new
-            {
-                error = message,
-                status = statusCode,
-                timestamp = DateTime.UtcNow
-            };
+            var response = ApiResponse<string>.Fail(message);
 
             var json = JsonSerializer.Serialize(response);
             await context.Response.WriteAsync(json);

@@ -1,3 +1,5 @@
+using FoodStore.Api.Helpers;
+using FoodStore.Contracts.Common;
 using FoodStore.Contracts.DTOs.Food;
 using FoodStore.Contracts.Interfaces;
 using FoodStore.Contracts.QueryParams;
@@ -28,13 +30,13 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> Create([FromForm] FoodCreateDto foodCreateDto , IFormFile file)
         {
             if (foodCreateDto == null)
-                return BadRequest("Food data is required.");
+                return BadRequest(ApiResponse<string>.Fail("Food data is required."));
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
             if (file == null || file.Length == 0)
-                return BadRequest("Image is required");
+                return BadRequest(ApiResponse<string>.Fail("Image is required."));
 
             using var stream = file.OpenReadStream();
 
@@ -43,7 +45,7 @@ namespace FoodStore.Api.Controllers
             return CreatedAtAction(
                    nameof(GetById),  
                    new { id = createdFood.Id },  
-                   createdFood  
+                   ApiResponse<FoodResponseDto>.Ok(createdFood, "Food created successfully")  
                  );
         } 
 
@@ -51,8 +53,7 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var foodDto = await _foodService.GetFoodByIdAsync(id);
-
-            return Ok(foodDto);
+            return Ok(ApiResponse<FoodResponseDto>.Ok(foodDto));
         }
 
         [HttpDelete("{id}")]
@@ -99,7 +100,7 @@ namespace FoodStore.Api.Controllers
 
             var paginatedResult = await _foodService.GetFoodsAsync(pagination, queryParams.CategoryId);
             
-            return Ok(paginatedResult);
+            return Ok(ApiResponse<PagedResponse<FoodResponseDto>>.Ok(paginatedResult));
         }
 
         [HttpGet("search")]
@@ -110,7 +111,7 @@ namespace FoodStore.Api.Controllers
                 
             var paginatedResult = await _foodService.SearchFoodsAsync(query,paginationParams);
 
-            return Ok(paginatedResult);
+            return Ok(ApiResponse<PagedResponse<FoodResponseDto>>.Ok(paginatedResult));
         }
 
         [HttpPost("batch")]
@@ -119,9 +120,9 @@ namespace FoodStore.Api.Controllers
             if (ids == null || ids.Count == 0)
                 return BadRequest("A list of food IDs must be provided.");
 
-            var responseDtos = await _foodService.GetFoodDetailsByIdsAsync(ids);
+            var foodIdsDto = await _foodService.GetFoodDetailsByIdsAsync(ids);
 
-            return Ok(responseDtos);
+            return Ok(ApiResponse<IReadOnlyList<FoodResponseDto>>.Ok(foodIdsDto));
         }
 
 
