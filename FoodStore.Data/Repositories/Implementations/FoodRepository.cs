@@ -17,10 +17,12 @@ namespace FoodStore.Data.Repositories.Implementations
         {
             return await _context.foods.AnyAsync(f => f.Id == foodId);
         }
-        public async Task<IEnumerable<Food>> GetFoodsByIdsAsync(List<int> foodIds)
+        public async Task<IReadOnlyList<Food>> GetFoodsByIdsAsync(List<int> foodIds)
         {
-            return await _context.foods
-                .Where(f => foodIds.Contains(f.Id)) 
+            var idSet = new HashSet<int>(foodIds); 
+
+             return await _context.foods
+                .Where(f => idSet.Contains(f.Id))
                 .ToListAsync();
         }
 

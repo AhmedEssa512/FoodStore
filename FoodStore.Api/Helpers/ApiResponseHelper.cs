@@ -12,7 +12,7 @@ namespace FoodStore.Api.Helpers
         public static ApiResponse<Dictionary<string, string[]>> FromModelState(ModelStateDictionary modelState)
         {
             var errors = modelState
-            .Where(kvp => kvp.Value != null)
+            .Where(kvp => kvp.Value is { Errors.Count: > 0 }) // only include fields with errors
             .ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()

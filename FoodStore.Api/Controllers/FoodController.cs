@@ -61,8 +61,7 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> Delete(int id) 
         {
              await _foodService.DeleteFoodAsync(id);
-
-             return NoContent();
+             return Ok(ApiResponse<string>.Ok("Food deleted successfully."));
         }
 
         [HttpPut("{id}")]
@@ -70,10 +69,10 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> Update(int id, [FromForm] FoodUpdateDto foodUpdateDto, IFormFile? file = null)
         {       
             if (foodUpdateDto == null)
-                return BadRequest("Food data is required.");
+                return BadRequest(ApiResponse<string>.Fail("Food data is required."));
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
             Stream? imageStream = null;
             string? originalFileName = null; 
@@ -86,7 +85,7 @@ namespace FoodStore.Api.Controllers
 
             await _foodService.UpdateFoodAsync(id, foodUpdateDto, imageStream, originalFileName);
 
-            return NoContent();
+            return Ok(ApiResponse<string>.Ok("Food updated successfully."));
         }
 
         [HttpGet]
@@ -107,7 +106,7 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> Search([FromQuery]string query, [FromQuery]PaginationParams paginationParams)
         {
             if (string.IsNullOrWhiteSpace(query))
-                return BadRequest("Search query is required.");
+                return BadRequest(ApiResponse<string>.Fail("Search query is required."));
                 
             var paginatedResult = await _foodService.SearchFoodsAsync(query,paginationParams);
 
@@ -118,7 +117,7 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> GetByIds([FromBody]List<int> ids)
         {
             if (ids == null || ids.Count == 0)
-                return BadRequest("A list of food IDs must be provided.");
+                return BadRequest(ApiResponse<string>.Fail("A list of food IDs must be provided."));
 
             var foodIdsDto = await _foodService.GetFoodDetailsByIdsAsync(ids);
 

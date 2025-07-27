@@ -1,3 +1,5 @@
+using FoodStore.Api.Helpers;
+using FoodStore.Contracts.Common;
 using FoodStore.Contracts.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,19 +21,19 @@ namespace FoodStore.Api.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetRolesAsync()
         {
-            return Ok(await _authorizationService.GetRolesAsync());
+            var roles = await _authorizationService.GetRolesAsync();
+            return Ok(ApiResponse<IReadOnlyList<RoleDto>>.Ok(roles));
         }
 
 
         [HttpPost("roles")]
-        public async Task<IActionResult> AddRoleAsync([FromBody]RoleDto roleDto)
+        public async Task<IActionResult> CreateRoleAsync([FromBody]RoleDto roleDto)
         {
             if(!ModelState.IsValid)
-             return BadRequest(ModelState);
+             return BadRequest(ApiResponseHelper.FromModelState(ModelState));
              
             await _authorizationService.AddRoleAsync(roleDto.Name);
-
-            return Ok(new {Message="Added successfully"});
+            return Ok(ApiResponse<string>.Ok("Role created successfully"));
         }
 
         [HttpPut("roles/{roleId}")]
@@ -39,40 +41,37 @@ namespace FoodStore.Api.Controllers
         {
 
             if(!ModelState.IsValid)
-             return BadRequest(ModelState);
+             return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
             await _authorizationService.UpdateRoleAsync(roleId, roleDto.Name);
-
-            return Ok(new {Message="Updated successfully."});
+            return Ok(ApiResponse<string>.Ok("Role updated successfully"));
         }
 
         [HttpDelete("roles/{roleId}")]
         public async Task<IActionResult> DeleteRoleAsync(string roleId)
         {
             await _authorizationService.DeleteRoleAsync(roleId);
-            return NoContent();
+            return Ok(ApiResponse<string>.Ok("Role deleted successfully"));
         }
 
-        [HttpPost("roles/{roleId}/users")]
+        [HttpPost("roles/AddUserToRole")]
         public async Task<IActionResult> AddUserToRoleAsync([FromBody] UserRoleDto userRoleDto)
         {
             if(!ModelState.IsValid)
-             return BadRequest(ModelState);
+             return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
              await _authorizationService.AddUserToRoleAsync(userRoleDto.Email , userRoleDto.RoleName);
-
-             return Ok(new {Message ="Added successfully."});
+             return Ok(ApiResponse<string>.Ok("User added to role successfully."));
         }
 
-        [HttpDelete("roles/{roleId}/users")]
+        [HttpDelete("roles/DeleteUserFromRole")]
         public async Task<IActionResult> DeleteUserFromRoleAsync([FromBody] UserRoleDto userRoleDto)
         {
             if(!ModelState.IsValid)
-             return BadRequest(ModelState);
+             return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
              await _authorizationService.DeleteUserFromRoleAsync(userRoleDto.Email , userRoleDto.RoleName);
-
-             return NoContent();
+             return Ok(ApiResponse<string>.Ok("User removed from role successfully."));
         }
     }
 }

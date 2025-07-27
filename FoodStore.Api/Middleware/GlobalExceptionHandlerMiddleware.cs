@@ -27,30 +27,32 @@ namespace FoodStore.Api.Middleware
             }
             catch (NotFoundException ex)
             {
+                _logger.LogWarning("Not found: {Message}", ex.Message);
                 await WriteJsonErrorResponse(httpContext, StatusCodes.Status404NotFound, ex.Message);
             }
-            catch (ValidationException ex)
+            catch (Exception ex) when (ex is ValidationException or BadRequestException)
             {
+                _logger.LogInformation("{ExceptionType}: {Message}", ex.GetType().Name, ex.Message);
                 await WriteJsonErrorResponse(httpContext, StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (ForbiddenException ex)
             {
+                _logger.LogWarning("Forbidden: {Message}", ex.Message);
                 await WriteJsonErrorResponse(httpContext, StatusCodes.Status403Forbidden, ex.Message);
             }
             catch (ConflictException ex)
             {
+                 _logger.LogWarning("Conflict: {Message}", ex.Message);
                 await WriteJsonErrorResponse(httpContext, StatusCodes.Status409Conflict, ex.Message);
             }
             catch (OperationFailedException ex)
             {
+                _logger.LogError(ex, "Operation failed: {Message}", ex.Message);
                 await WriteJsonErrorResponse(httpContext, StatusCodes.Status500InternalServerError, ex.Message);
-            }
-            catch (BadRequestException ex)
-            {
-                await WriteJsonErrorResponse(httpContext, StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (UnauthorizedAccessException ex)
             {
+                 _logger.LogWarning("Unauthorized access: {Message}", ex.Message);
                 await WriteJsonErrorResponse(httpContext, StatusCodes.Status401Unauthorized, ex.Message);
             }
             catch (Exception ex)

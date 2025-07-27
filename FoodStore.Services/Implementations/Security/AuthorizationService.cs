@@ -104,7 +104,7 @@ namespace FoodStore.Services.Implementations.Security
 
         }
 
-        public async Task<List<RoleDto>> GetRolesAsync()
+        public async Task<IReadOnlyList<RoleDto>> GetRolesAsync()
         {
             var roles = await _roleManager.Roles.ToListAsync();
             // Map IdentityRole to RoleDto

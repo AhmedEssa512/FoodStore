@@ -13,6 +13,6 @@ namespace FoodStore.Data.Repositories.Interfaces
         Task<decimal> GetPriceAsync(int foodId);
         Task<(IReadOnlyList<Food>, int TotalCount)> GetPaginatedFoods(int pageNumber, int pageSize,int? categoryId = null);
         Task<(IReadOnlyList<Food>, int TotalCount)> SearchFoodsInDatabaseAsync(string searchQuery, int pageNumber, int pageSize);
-        Task<IEnumerable<Food>> GetFoodsByIdsAsync(List<int> foodIds);
+        Task<IReadOnlyList<Food>> GetFoodsByIdsAsync(List<int> foodIds);
     }
 }

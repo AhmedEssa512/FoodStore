@@ -1,3 +1,4 @@
+using FoodStore.Contracts.Common;
 using FoodStore.Contracts.DTOs.Cart;
 using FoodStore.Contracts.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -21,14 +22,14 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> AddToCart([FromBody] CartItemDto cartItemDto)
         {
                 await _cartService.AddToCartAsync(UserId, cartItemDto);
-                return Ok(new {Message ="Added successfully."});
+                return Ok(ApiResponse<string>.Ok("Item added to cart successfully."));
         }
 
         [HttpGet("items")]
         public async Task<IActionResult> GetCartAsync()
         {
                 var cart = await _cartService.GetUserCartAsync(UserId);
-                return Ok(cart);
+                return Ok(ApiResponse<CartResponseDto>.Ok(cart));
         }
 
 
@@ -36,21 +37,21 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> UpdateCartAsync(int cartItemId, [FromBody]CartItemUpdateDto dto)
         {
                await _cartService.UpdateCartItemAsync(UserId,cartItemId,dto.Quantity);
-               return Ok(new { Message = "Updated successfully." });
+               return Ok(ApiResponse<string>.Ok("Cart updated successfully"));
         }
 
         [HttpDelete("items/{cartItemId}")]
         public async Task<IActionResult> DeleteCartItemAsync(int cartItemId)
         {
                 await _cartService.DeleteCartItemAsync(UserId,cartItemId);
-                return NoContent();
+                return Ok(ApiResponse<string>.Ok("Cart item deleted successfully"));
         }
 
         [HttpDelete("items")]
         public  async Task<IActionResult> DeleteAllItemAsync()
         {
                 await _cartService.DeleteCartItemsAsync(UserId);
-                return NoContent();
+                return Ok(ApiResponse<string>.Ok("Cart deleted successfully"));
         }
 
         [HttpPost("merge")]
@@ -58,7 +59,7 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> MergeCart([FromBody] List<CartItemDto> items)
         {
                await _cartService.MergeCartAsync(UserId, items);
-               return Ok();
+               return Ok(ApiResponse<string>.Ok("Cart merged successfully."));
         }
 
 

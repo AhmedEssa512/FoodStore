@@ -16,6 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 using FoodStore.Api.Middleware;
 using FoodStore.Contracts.Config;
 using FoodStore.Services.Models;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,6 +112,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.TokenLifespan = TimeSpan.FromMinutes(tokenLifespanMinutes);
     });
     
+    builder.Services.Configure<ApiBehaviorOptions>(options =>
+    {
+        options.SuppressModelStateInvalidFilter = true;
+    });
 
     builder.Services.AddMemoryCache();
 

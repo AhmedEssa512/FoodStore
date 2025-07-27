@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FoodStore.Contracts.DTOs;
 using FoodStore.Contracts.Interfaces;
+using FoodStore.Api.Helpers;
+using FoodStore.Contracts.Common;
 
 
 namespace FoodStore.Api.Controllers
@@ -26,12 +28,12 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> RegisterAsync([FromBody]RegisterRequestDto registerRequestDto)
         {
             if(!ModelState.IsValid)
-             return BadRequest(ModelState);
+             return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
             var result = await _authService.RegisterAsync(registerRequestDto);
 
             if(!result.Response.AccountCreated)
-               return Unauthorized(result.Response.Message);
+               return Unauthorized(ApiResponse<string>.Fail(result.Response.Message ?? "Account creation is incomplete. Please verify your email or contact support."));
 
             if(!string.IsNullOrEmpty(result.AccessToken))
                SetAccessTokenInCookie(result.AccessToken, result.AccessTokenExpiry);
@@ -39,7 +41,7 @@ namespace FoodStore.Api.Controllers
             if(!string.IsNullOrEmpty(result.RefreshToken))
                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiry);
 
-               return Ok(result.Response);
+               return Ok(ApiResponse<RegisterResponseDto>.Ok(result.Response));
         }
 
 
@@ -47,12 +49,12 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> LogInAsync([FromBody] LoginRequestDto loginRequestDto)
         {
             if(!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
             var result = await _authService.LogInAsync(loginRequestDto);
 
             if(!result.Response.IsAuthenticated)
-               return Unauthorized(new { message = "Password or email is incorrect" });
+               return Unauthorized(ApiResponse<string>.Fail("Email or password is incorrect."));
 
             if(!string.IsNullOrEmpty(result.RefreshToken))
                 SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiry);
@@ -60,7 +62,7 @@ namespace FoodStore.Api.Controllers
             if(!string.IsNullOrEmpty(result.AccessToken))
                SetAccessTokenInCookie(result.AccessToken, result.AccessTokenExpiry);
 
-            return Ok(result.Response);
+            return Ok(ApiResponse<LoginResponseDto>.Ok(result.Response));
         }
 
         [HttpPost("refresh-token")]
@@ -68,13 +70,13 @@ namespace FoodStore.Api.Controllers
         {
             var refreshToken = Request.Cookies["refresh_token"];
 
-            if(refreshToken == null)
-                return Unauthorized();
-
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized(ApiResponse<string>.Fail("Refresh token is missing."));
+            
             var result = await _authService.RefreshTokenAsync(refreshToken);
 
             if (!result.Response.IsAuthenticated)
-                return Unauthorized(new { message = "Invalid token" });
+                return Unauthorized(ApiResponse<string>.Fail("Invalid or expired refresh token."));
 
             if(!string.IsNullOrEmpty(result.RefreshToken))
                 SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiry);
@@ -82,7 +84,7 @@ namespace FoodStore.Api.Controllers
             if(!string.IsNullOrEmpty(result.AccessToken))
                 SetAccessTokenInCookie(result.AccessToken, result.AccessTokenExpiry);
             
-            return Ok(result.Response);
+            return Ok(ApiResponse<RefreshTokenResponseDto>.Ok(result.Response));
         }
 
 
@@ -94,14 +96,14 @@ namespace FoodStore.Api.Controllers
 
             if (string.IsNullOrEmpty(token))
             {
-                return BadRequest(new { message = "Token is required!" });
+                return BadRequest(ApiResponse<string>.Fail("Refresh token is required."));
             }
 
             var result = await _authService.RevokeTokenAsync(token);
 
             if(!result)
             {
-                return BadRequest(new { message = "Invalid token" });
+                return BadRequest(ApiResponse<string>.Fail("Invalid or already revoked token."));
             }
 
             Response.Cookies.Delete("refresh_token", new CookieOptions
@@ -120,7 +122,7 @@ namespace FoodStore.Api.Controllers
                 SameSite = SameSiteMode.None
             });
 
-            return Ok();
+            return Ok(ApiResponse<string>.Ok("Token revoked successfully."));
         }
 
         private void SetAccessTokenInCookie(string token, DateTime expires)
@@ -157,7 +159,7 @@ namespace FoodStore.Api.Controllers
         [Authorize]
         public IActionResult IsAuthenticated()
         {
-            return Ok(new { IsAuthenticated = true });
+            return Ok(ApiResponse<bool>.Ok(true));
         } 
 
         [HttpGet("me")]
@@ -165,25 +167,28 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> GetCurrentUser()
         {
             var user = await _authService.GetCurrentUserAsync(User);
-            return Ok(user); 
+            return Ok(ApiResponse<UserInfoDto>.Ok(user)); 
         }
 
-        [HttpPost("send")]
-        public async Task<IActionResult> Send([FromBody] MailRequest request)
-        {
-            await _emailService.SendEmailAsync(request.To, request.Subject, request.Body);
-            return Ok("Email sent successfully!");
-        }    
+        // [HttpPost("send")]
+        // public async Task<IActionResult> Send([FromBody] MailRequest request)
+        // {
+        //     await _emailService.SendEmailAsync(request.To, request.Subject, request.Body);
+        //     return Ok("Email sent successfully!");
+        // }    
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
         {
+            if (!ModelState.IsValid)
+             return BadRequest(ApiResponseHelper.FromModelState(ModelState));
+
            var result = await _authService.ForgotPasswordAsync(request.Email);
 
-             if (!result.Success)
-                return BadRequest(new { errors = result.Errors });
+            if (!result.Success)
+             return BadRequest(ApiResponse<string>.Fail("Unable to process the password reset request."));
             
-            return Ok(new { message = "A reset link has been sent the email." });
+            return Ok(ApiResponse<string>.Ok("If this email exists, a reset link has been sent."));
         }
 
         [HttpPost("reset-password")]
@@ -195,10 +200,10 @@ namespace FoodStore.Api.Controllers
                 request.NewPassword
             );
 
-          //  if (!result.Success)
-          //      return BadRequest(new { errors = result.Errors });
+           if (!result.Success)
+            return BadRequest(ApiResponse<List<string>>.Fail("Password reset failed."));
 
-            return Ok(result);
+            return Ok(ApiResponse<string>.Ok("Password has been reset successfully."));
         }
     }
 }

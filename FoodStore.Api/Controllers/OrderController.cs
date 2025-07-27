@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using FoodStore.Data.Entities.Enums;
 using FoodStore.Contracts.DTOs.Order;
 using FoodStore.Contracts.Interfaces;
+using FoodStore.Contracts.Common;
+using FoodStore.Api.Helpers;
 
 namespace FoodStore.Api.Controllers
 {
@@ -21,9 +23,11 @@ namespace FoodStore.Api.Controllers
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Create([FromBody]OrderDto orderDto)
         {
-            await _orderService.CreateOrderAsync(UserId,orderDto);
+            if (!ModelState.IsValid)
+             return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
-            return Ok(new { Message = "Added successfully." });
+            await _orderService.CreateOrderAsync(UserId,orderDto);
+             return Ok(ApiResponse<string>.Ok("Order created successfully."));
         }
 
         [HttpDelete("{id}")]
@@ -31,7 +35,7 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> Delete(int  id)
         {
             await _orderService.DeleteOrderAsync(UserId, id);
-            return NoContent();
+            return Ok(ApiResponse<string>.Ok("Order deleted successfully."));
         }
 
 
@@ -39,17 +43,18 @@ namespace FoodStore.Api.Controllers
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Update(int id, [FromBody] OrderDto orderDto)
         {
-            await _orderService.UpdateOrderAsync(UserId, id, orderDto);
+            if (!ModelState.IsValid)
+             return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 
-            return Ok(new { Message = "Updated successfully." });
+            await _orderService.UpdateOrderAsync(UserId, id, orderDto);
+             return Ok(ApiResponse<string>.Ok("Order updated successfully."));
         }
 
         [HttpGet]
         public async Task<IActionResult> GetUserOrders()
         {
             var orders = await _orderService.GetUserOrdersAsync(UserId);
-
-            return Ok(orders);
+            return Ok(ApiResponse<IReadOnlyList<OrderListItemDto>>.Ok(orders));
         }
 
         [HttpGet("{id}")]
@@ -57,8 +62,7 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var order = await _orderService.GetOrderByIdAsync(id);
-
-            return Ok(order);
+            return Ok(ApiResponse<OrderResponseDto>.Ok(order));
         }
 
         [HttpPatch("{orderId}/status")]
@@ -66,8 +70,7 @@ namespace FoodStore.Api.Controllers
         public async Task<IActionResult> UpdateOrderStatus(int orderId , [FromBody] UpdateOrderStatusRequest request)
         {
             var order = await _orderService.UpdateOrderStatusAsync(orderId , request.NewStatus);
-
-            return Ok(order);
+             return Ok(ApiResponse<OrderResponseDto>.Ok(order));
         }
 
    

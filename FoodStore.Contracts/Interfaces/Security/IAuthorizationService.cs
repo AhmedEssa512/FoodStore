@@ -5,7 +5,7 @@ namespace FoodStore.Contracts.Interfaces.Security
     public interface IAuthorizationService
     {
         Task AddRoleAsync(string roleName);
-        Task<List<RoleDto>> GetRolesAsync();
+        Task<IReadOnlyList<RoleDto>> GetRolesAsync();
         Task<bool> IsRoleExistByName(string roleName);
         Task<bool> IsRoleExistById(string roleId);
         Task UpdateRoleAsync(string roleId, string roleName);
