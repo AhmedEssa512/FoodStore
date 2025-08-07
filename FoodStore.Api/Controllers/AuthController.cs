@@ -33,7 +33,7 @@ namespace FoodStore.Api.Controllers
             var result = await _authService.RegisterAsync(registerRequestDto);
 
             if(!result.Response.AccountCreated)
-               return Unauthorized(ApiResponse<string>.Fail(result.Response.Message ?? "Account creation is incomplete. Please verify your email or contact support."));
+               return BadRequest(ApiResponse<string>.Fail(result.Response.Message ?? "Account creation failed."));
 
             if(!string.IsNullOrEmpty(result.AccessToken))
                SetAccessTokenInCookie(result.AccessToken, result.AccessTokenExpiry);
@@ -54,7 +54,7 @@ namespace FoodStore.Api.Controllers
             var result = await _authService.LogInAsync(loginRequestDto);
 
             if(!result.Response.IsAuthenticated)
-               return Unauthorized(ApiResponse<string>.Fail("Email or password is incorrect."));
+               return BadRequest(ApiResponse<string>.Fail("Email or password is incorrect."));
 
             if(!string.IsNullOrEmpty(result.RefreshToken))
                 SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiry);
@@ -169,13 +169,7 @@ namespace FoodStore.Api.Controllers
             var user = await _authService.GetCurrentUserAsync(User);
             return Ok(ApiResponse<UserInfoDto>.Ok(user)); 
         }
-
-        // [HttpPost("send")]
-        // public async Task<IActionResult> Send([FromBody] MailRequest request)
-        // {
-        //     await _emailService.SendEmailAsync(request.To, request.Subject, request.Body);
-        //     return Ok("Email sent successfully!");
-        // }    
+  
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
