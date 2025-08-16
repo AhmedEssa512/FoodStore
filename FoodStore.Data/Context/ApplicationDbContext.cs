@@ -11,14 +11,13 @@ namespace FoodStore.Data.Context
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-        public DbSet<Category> categories  { get; set; } 
-        public DbSet<Food> foods  { get; set; } 
-        public DbSet<Order> orders  { get; set; } 
-        public DbSet<OrderDetail> orderDetails  { get; set; } 
-        public DbSet<Cart> carts  { get; set; } 
-        public DbSet<CartItem> cartItems  { get; set; } 
+        public DbSet<Category> categories  { get; set; } = null!;
+        public DbSet<Food> foods  { get; set; } = null!;
+        public DbSet<Order> orders  { get; set; } = null!;
+        public DbSet<OrderDetail> orderDetails  { get; set; } = null!;
+        public DbSet<Cart> carts  { get; set; } = null!;
+        public DbSet<CartItem> cartItems  { get; set; } = null!;
 
-        // public DbSet<RefreshToken> refreshTokens  { get; set; }
 
 
  
