@@ -13,7 +13,7 @@ namespace FoodStore.Services.Implementations
 
         private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper) 
+        public CategoryService(IUnitOfWork unitOfWork) 
         {
             _unitOfWork = unitOfWork;
         }
