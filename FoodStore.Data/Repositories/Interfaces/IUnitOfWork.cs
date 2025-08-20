@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FoodStore.Data.Repositories.Interfaces
 {
-    public interface IUnitOfWork 
+    public interface IUnitOfWork :  IDisposable
     {
        public IFoodRepository Food { get; }
        public ICategoryRepository Category {get;}
@@ -13,6 +9,7 @@ namespace FoodStore.Data.Repositories.Interfaces
        public IOrderDetailsRepository OrderDetails {get;}
        public ICartRepository Cart {get;}
        public ICartItemRepository CartItem {get;}
+       public IUserRepository User {get;}
 
         Task SaveChangesAsync();
         Task BeginTransactionAsync();

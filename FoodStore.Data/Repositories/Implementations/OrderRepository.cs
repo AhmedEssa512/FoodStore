@@ -52,6 +52,16 @@ namespace FoodStore.Data.Repositories.Implementations
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
-                }
+        }
+
+        public async Task<decimal> GetTotalSalesAsync()
+        {
+            return await _context.orders.SumAsync(o => o.Total);
+        }
+
+        public async Task<int> GetTotalOrdersAsync()
+        {
+            return await _context.orders.CountAsync();
+        }
     }
 }

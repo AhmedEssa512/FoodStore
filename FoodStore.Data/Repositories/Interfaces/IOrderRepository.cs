@@ -11,7 +11,7 @@ namespace FoodStore.Data.Repositories.Interfaces
     {
         Task<IReadOnlyList<OrderSummary>> GetOrderSummariesAsync(string userId);
         Task<OrderWithDetails?> GetOrderWithDetailsAsync(int orderId);
-
-
+        Task<decimal> GetTotalSalesAsync();
+        Task<int> GetTotalOrdersAsync();
     }
 }

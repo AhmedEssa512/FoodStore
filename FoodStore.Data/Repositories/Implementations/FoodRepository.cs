@@ -76,5 +76,10 @@ namespace FoodStore.Data.Repositories.Implementations
 
             return (foods.AsReadOnly(), totalCount);
         }
+
+        public async Task<int> GetTotalFoodssAsync()
+        {
+            return await _context.foods.CountAsync();
+        }
     }
 }

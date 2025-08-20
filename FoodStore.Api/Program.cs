@@ -17,6 +17,7 @@ using FoodStore.Api.Middleware;
 using FoodStore.Contracts.Config;
 using FoodStore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
+using FoodStore.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +38,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!));
  builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-
+ builder.Services.AddHttpContextAccessor();
         builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -77,7 +78,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
              builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-             builder.Services.AddServicesDependencies(builder.Configuration); 
+             builder.Services.AddDataDependencies();    
+             builder.Services.AddServicesDependencies();
+
+             
+
 
                builder.Services.Configure<RequestLocalizationOptions>(options =>
             {

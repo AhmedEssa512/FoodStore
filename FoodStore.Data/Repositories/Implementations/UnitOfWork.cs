@@ -4,54 +4,49 @@ using System.Linq;
 using System.Threading.Tasks;
 using FoodStore.Data.Context;
 using FoodStore.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace FoodStore.Data.Repositories.Implementations
 {
     public class UnitOfWork : IUnitOfWork
     {
-    private readonly ApplicationDbContext _context;
+private readonly ApplicationDbContext _context;
 
-    private IFoodRepository _foodRepository;
-    private ICategoryRepository _categoryRepository;
-    private IOrderRepository _orderRepository;
-    private IOrderDetailsRepository _orderDetailsRepository;
-    private ICartRepository _cartRepository;
-    private ICartItemRepository _cartItemRepository;
+    public IFoodRepository Food { get; }
+    public ICategoryRepository Category { get; }
+    public IOrderRepository Order { get; }
+    public IOrderDetailsRepository OrderDetails { get; }
+    public ICartRepository Cart { get; }
+    public ICartItemRepository CartItem { get; }
+    public IUserRepository User { get; }
 
-    // Expose repositories as properties
-    public IFoodRepository Food => _foodRepository ??= new FoodRepository(_context);
-    public ICategoryRepository Category => _categoryRepository ??= new CategoryRepository(_context);
-    public IOrderRepository Order => _orderRepository ??= new OrderRepository(_context);
-    public IOrderDetailsRepository OrderDetails => _orderDetailsRepository ??= new OrderDetailsRepository(_context);
-    public ICartRepository Cart => _cartRepository ??= new CartRepository(_context);
-    public ICartItemRepository CartItem => _cartItemRepository ??= new CartItemRepository(_context);
-
-    public UnitOfWork(ApplicationDbContext context)
+    public UnitOfWork(
+        ApplicationDbContext context,
+        IFoodRepository foodRepository,
+        ICategoryRepository categoryRepository,
+        IOrderRepository orderRepository,
+        IOrderDetailsRepository orderDetailsRepository,
+        ICartRepository cartRepository,
+        ICartItemRepository cartItemRepository,
+        IUserRepository userRepository
+    )
     {
         _context = context;
+        Food = foodRepository;
+        Category = categoryRepository;
+        Order = orderRepository;
+        OrderDetails = orderDetailsRepository;
+        Cart = cartRepository;
+        CartItem = cartItemRepository;
+        User = userRepository;
     }
 
 
-
-        public async Task BeginTransactionAsync()
-        {
-            await _context.Database.BeginTransactionAsync();
-        }
-
-        public async Task CommitTransactionAsync()
-        {
-            await _context.Database.CommitTransactionAsync();
-        }
-
-        public async Task RollbackTransactionAsync()
-        {
-            await _context.Database.RollbackTransactionAsync();
-        }
-
-        public async Task SaveChangesAsync()
-        {
-             await _context.SaveChangesAsync();
-        }
+        public async Task BeginTransactionAsync() => await _context.Database.BeginTransactionAsync();
+        public async Task CommitTransactionAsync() => await _context.Database.CommitTransactionAsync();
+        public async Task RollbackTransactionAsync() => await _context.Database.RollbackTransactionAsync();
+        public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
+        public void Dispose() => _context.Dispose();
 
     }
 }
