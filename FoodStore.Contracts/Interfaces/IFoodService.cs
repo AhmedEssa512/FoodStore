@@ -13,6 +13,8 @@ namespace FoodStore.Contracts.Interfaces
        Task<IReadOnlyList<FoodResponseDto>> GetFoodDetailsByIdsAsync(List<int> foodIds);
        Task<FoodResponseDto> GetFoodByIdAsync(int foodId);
        Task<PagedResponse<FoodResponseDto>> SearchFoodsAsync(string searchQuery, PaginationParams paginationParams);
+       Task<PagedResponse<FoodAdminListDto>> GetFoodsForAdminAsync(PaginationParams paginationParams,int? categoryId = null);
+       Task UpdateFoodAvailabilityAsync(int foodId, bool isAvailable);
 
     }
 }

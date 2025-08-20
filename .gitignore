@@ -14,3 +14,5 @@ FoodStore.Data/obj/
 
 FoodStore.XUnitTest/bin/
 FoodStore.XUnitTest/obj/
+
+FoodStore.Api/wwwroot/images/

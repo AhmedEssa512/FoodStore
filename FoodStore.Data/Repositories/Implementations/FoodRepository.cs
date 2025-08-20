@@ -28,7 +28,7 @@ namespace FoodStore.Data.Repositories.Implementations
 
         public async Task<(IReadOnlyList<Food>, int TotalCount)> GetPaginatedFoods(int pageNumber, int pageSize, int? categoryId = null)
         {
-            IQueryable<Food> query = _context.foods.AsQueryable();
+            IQueryable<Food> query = _context.foods.Include(f => f.Category);
 
             if (categoryId.HasValue)
             {

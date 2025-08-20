@@ -97,6 +97,17 @@ namespace FoodStore.Services.Implementations
             }
         }
 
+        public async Task UpdateFoodAvailabilityAsync(int foodId, bool isAvailable)
+        {
+            var food = await _unitOfWork.Food.GetByIdAsync(foodId)
+                ?? throw new NotFoundException("Food is not found");
+
+            food.IsAvailable = isAvailable;
+
+            await _unitOfWork.Food.UpdateAsync(food);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
 
         public async Task DeleteFoodAsync(int foodId)
         {
@@ -202,6 +213,20 @@ namespace FoodStore.Services.Implementations
             return _mapper.Map<IReadOnlyList<FoodResponseDto>>(foods);
         }
 
+        public async Task<PagedResponse<FoodAdminListDto>> GetFoodsForAdminAsync(PaginationParams paginationParams,int? categoryId = null)
+        {
+            var (foods, totalCount) = await _unitOfWork.Food.GetPaginatedFoods(paginationParams.PageNumber, paginationParams.PageSize, categoryId);
+
+            var foodDtos = _mapper.Map<IReadOnlyList<FoodAdminListDto>>(foods);
+
+            var result = new PagedResponse<FoodAdminListDto>(
+                items: foodDtos,
+                totalCount: totalCount,
+                pageNumber: paginationParams.PageNumber,
+                pageSize: paginationParams.PageSize
+            );
+            return result;
+        }
 
     }
 }

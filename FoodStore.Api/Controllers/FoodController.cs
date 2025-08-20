@@ -88,6 +88,13 @@ namespace FoodStore.Api.Controllers
             return Ok(ApiResponse<string>.Ok("Food updated successfully."));
         }
 
+        [HttpPatch("{foodId}/availability")]
+        public async Task<IActionResult> UpdateAvailability(int foodId, [FromBody] bool isAvailable)
+        {
+            await _foodService.UpdateFoodAvailabilityAsync(foodId, isAvailable);
+            return Ok(ApiResponse<string>.Ok("Food updated successfully."));
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllFoods([FromQuery] FoodQueryParams queryParams)
         {
@@ -122,6 +129,21 @@ namespace FoodStore.Api.Controllers
             var foodIdsDto = await _foodService.GetFoodDetailsByIdsAsync(ids);
 
             return Ok(ApiResponse<IReadOnlyList<FoodResponseDto>>.Ok(foodIdsDto));
+        }
+
+        [HttpGet("Admin-Foods")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdminFoods([FromQuery] FoodQueryParams queryParams)
+        {
+            var pagination = new PaginationParams
+            {
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize
+            };
+
+            var paginatedResult = await _foodService.GetFoodsForAdminAsync(pagination, queryParams.CategoryId);
+
+            return Ok(ApiResponse<PagedResponse<FoodAdminListDto>>.Ok(paginatedResult));
         }
 
 

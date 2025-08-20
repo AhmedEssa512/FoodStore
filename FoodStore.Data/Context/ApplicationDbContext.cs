@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FoodStore.Data.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +15,27 @@ namespace FoodStore.Data.Context
         public DbSet<CartItem> cartItems  { get; set; } = null!;
 
 
+          // Override SaveChangesAsync
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.Entity is Food foodEntity)
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        foodEntity.CreatedAt = DateTime.UtcNow;
+                        foodEntity.UpdatedAt = DateTime.UtcNow;
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        foodEntity.UpdatedAt = DateTime.UtcNow;
+                    }
+                }
+            }
 
+            return await base.SaveChangesAsync(cancellationToken);
+        }
  
 
     }

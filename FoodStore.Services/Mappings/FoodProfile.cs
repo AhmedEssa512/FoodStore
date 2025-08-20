@@ -22,7 +22,9 @@ namespace FoodStore.Services.Mappings
             .ForMember(dest => dest.CategoryId, opt => opt.Ignore())  
             .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());  // handle ImageUrl and CategoryId separately in the service
 
-
+            CreateMap<Food, FoodAdminListDto>()
+            .ForMember(dest => dest.CategoryName,
+                    opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty));
         }
     }
 }
