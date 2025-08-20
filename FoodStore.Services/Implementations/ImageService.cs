@@ -1,31 +1,31 @@
 using FoodStore.Contracts.Interfaces;
 using FoodStore.Services.Exceptions;
+using Microsoft.AspNetCore.Http;
 
 
 namespace FoodStore.Services.Implementations
 {
     public class ImageService: IImageService
     {
-        // public async Task<string> SaveImageAsync(IFormFile image)
-        // {
+         private readonly IHttpContextAccessor _httpContextAccessor;
+         public ImageService(IHttpContextAccessor httpContextAccessor)
+         {
+            _httpContextAccessor = httpContextAccessor;
+         }
 
-        //     string imageFileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+        public string GetFullUrl(string relativePath)
+        {
+            if (string.IsNullOrEmpty(relativePath))
+                return string.Empty;
 
-        //     var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", imageFileName);
+            var request = _httpContextAccessor.HttpContext?.Request;
 
-        //     var imageDirectory = Path.GetDirectoryName(imagePath);
-        //     if (!Directory.Exists(imageDirectory))
-        //     {
-        //         Directory.CreateDirectory(imageDirectory!);
-        //     }
+            if (request == null)
+                return relativePath; 
 
-        //     using (var fileStream = new FileStream(imagePath, FileMode.Create))
-        //     {
-        //         await image.CopyToAsync(fileStream);
-        //     }
-
-        //     return $"images/{imageFileName}";
-        // }
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            return $"{baseUrl}/{relativePath}";
+        }
 
         public async Task<string> SaveImageAsync(Stream imageStream, string originalFileName)
         {

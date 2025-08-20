@@ -1,6 +1,7 @@
 using AutoMapper;
 using FoodStore.Data.Entities;
 using FoodStore.Contracts.DTOs.Food;
+using FoodStore.Services.Mappings.Resolvers;
 
 namespace FoodStore.Services.Mappings
 {
@@ -11,8 +12,9 @@ namespace FoodStore.Services.Mappings
             CreateMap<FoodCreateDto, Food>()
             .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
 
-            CreateMap<Food, FoodResponseDto>();
-            CreateMap<FoodResponseDto, Food>();
+            CreateMap<Food, FoodResponseDto>()
+             .ForMember(dest => dest.ImageUrl,
+                           opt => opt.MapFrom<ImageUrlResolver>());
 
 
              CreateMap<FoodUpdateDto, Food>()
@@ -24,7 +26,9 @@ namespace FoodStore.Services.Mappings
 
             CreateMap<Food, FoodAdminListDto>()
             .ForMember(dest => dest.CategoryName,
-                    opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty));
+                    opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+                    .ForMember(dest => dest.ImageUrl,
+                           opt => opt.MapFrom<ImageUrlResolver>());
         }
     }
 }

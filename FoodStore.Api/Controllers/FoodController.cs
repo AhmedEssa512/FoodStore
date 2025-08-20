@@ -29,9 +29,6 @@ namespace FoodStore.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> Create([FromForm] FoodCreateDto foodCreateDto , IFormFile file)
         {
-            if (foodCreateDto == null)
-                return BadRequest(ApiResponse<string>.Fail("Food data is required."));
-
             if (!ModelState.IsValid)
                 return BadRequest(ApiResponseHelper.FromModelState(ModelState));
 

@@ -12,6 +12,7 @@ namespace FoodStore.Services
     {
          public static IServiceCollection AddServicesDependencies(this IServiceCollection services, Microsoft.Extensions.Configuration.ConfigurationManager configuration)
         {
+             services.AddHttpContextAccessor();
              services.AddTransient(typeof(IGenericBase<>), typeof(GenericBase<>));
              services.AddTransient<IEmailService, EmailService>();
 
