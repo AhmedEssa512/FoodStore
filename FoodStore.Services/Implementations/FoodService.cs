@@ -215,7 +215,7 @@ namespace FoodStore.Services.Implementations
 
         public async Task<PagedResponse<FoodAdminListDto>> GetFoodsForAdminAsync(PaginationParams paginationParams,int? categoryId = null)
         {
-            var (foods, totalCount) = await _unitOfWork.Food.GetPaginatedFoods(paginationParams.PageNumber, paginationParams.PageSize, categoryId);
+            var (foods, totalCount) = await _unitOfWork.Food.GetPaginatedFoodsForAdmin(paginationParams.PageNumber, paginationParams.PageSize, categoryId);
 
             var foodDtos = _mapper.Map<IReadOnlyList<FoodAdminListDto>>(foods);
 

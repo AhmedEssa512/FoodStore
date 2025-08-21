@@ -22,13 +22,15 @@ namespace FoodStore.Data.Repositories.Implementations
             var idSet = new HashSet<int>(foodIds); 
 
              return await _context.foods
-                .Where(f => idSet.Contains(f.Id))
+                .Where(f => idSet.Contains(f.Id) && f.IsAvailable)
                 .ToListAsync();
         }
 
         public async Task<(IReadOnlyList<Food>, int TotalCount)> GetPaginatedFoods(int pageNumber, int pageSize, int? categoryId = null)
         {
-            IQueryable<Food> query = _context.foods.Include(f => f.Category);
+            IQueryable<Food> query = _context.foods
+            .Include(f => f.Category)
+            .Where(f => f.IsAvailable);
 
             if (categoryId.HasValue)
             {
@@ -58,7 +60,7 @@ namespace FoodStore.Data.Repositories.Implementations
         public async Task<(IReadOnlyList<Food>, int TotalCount)> SearchFoodsInDatabaseAsync(string normalizedQuery, int pageNumber, int pageSize)
         {
 
-            var query = _context.foods.AsQueryable();
+            var query = _context.foods.Where(f => f.IsAvailable).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(normalizedQuery))
             {
@@ -80,6 +82,29 @@ namespace FoodStore.Data.Repositories.Implementations
         public async Task<int> GetTotalFoodssAsync()
         {
             return await _context.foods.CountAsync();
+        }
+
+        public async Task<(IReadOnlyList<Food>, int TotalCount)> GetPaginatedFoodsForAdmin(
+        int pageNumber, int pageSize, int? categoryId = null)
+        {
+            IQueryable<Food> query = _context.foods
+                .Include(f => f.Category); 
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(f => f.CategoryId == categoryId.Value);
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var foods = await query
+                .AsNoTracking()
+                .OrderBy(f => f.Name)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (foods.AsReadOnly(), totalCount);
         }
     }
 }

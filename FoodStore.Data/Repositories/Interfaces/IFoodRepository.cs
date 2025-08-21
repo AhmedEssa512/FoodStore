@@ -15,5 +15,6 @@ namespace FoodStore.Data.Repositories.Interfaces
         Task<(IReadOnlyList<Food>, int TotalCount)> SearchFoodsInDatabaseAsync(string searchQuery, int pageNumber, int pageSize);
         Task<IReadOnlyList<Food>> GetFoodsByIdsAsync(List<int> foodIds);
         Task<int> GetTotalFoodssAsync();
+        Task<(IReadOnlyList<Food>, int TotalCount)> GetPaginatedFoodsForAdmin(int pageNumber, int pageSize, int? categoryId = null);
     }
 }
