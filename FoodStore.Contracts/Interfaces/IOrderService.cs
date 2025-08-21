@@ -1,3 +1,4 @@
+using FoodStore.Contracts.Common;
 using FoodStore.Contracts.DTOs.Order;
 
 namespace FoodStore.Contracts.Interfaces
@@ -10,6 +11,12 @@ namespace FoodStore.Contracts.Interfaces
        Task<OrderResponseDto> GetOrderByIdAsync(int orderId);
        Task<IReadOnlyList<OrderListItemDto>> GetUserOrdersAsync(string UserId);
        Task<OrderResponseDto> UpdateOrderStatusAsync(int orderId, string newStatus);
+       Task<PagedResponse<OrderListItemDto>> GetAllOrdersForAdminAsync(
+            int pageNumber,
+            int pageSize,
+            string? statusFilter = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null);
 
 
     }

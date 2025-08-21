@@ -1,6 +1,7 @@
 using FoodStore.Data.Context;
 using Microsoft.EntityFrameworkCore.Storage;
 using FoodStore.Data.Repositories.Interfaces;
+using FoodStore.Data.Extensions;
 
 namespace FoodStore.Data.Repositories.Implementations
 {
@@ -13,6 +14,8 @@ namespace FoodStore.Data.Repositories.Implementations
         public GenericBase(ApplicationDbContext context)
         {
             _context = context;
+            // _currentTransaction = currentTransaction;
+
         }
 
 

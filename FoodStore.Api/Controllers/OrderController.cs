@@ -5,6 +5,7 @@ using FoodStore.Contracts.DTOs.Order;
 using FoodStore.Contracts.Interfaces;
 using FoodStore.Contracts.Common;
 using FoodStore.Api.Helpers;
+using FoodStore.Contracts.QueryParams;
 
 namespace FoodStore.Api.Controllers
 {
@@ -71,6 +72,21 @@ namespace FoodStore.Api.Controllers
         {
             var order = await _orderService.UpdateOrderStatusAsync(orderId , request.NewStatus);
              return Ok(ApiResponse<OrderResponseDto>.Ok(order));
+        }
+
+        [HttpGet("orders")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetOrders([FromQuery]OrderQueryParameters query)
+        {
+            var result = await _orderService.GetAllOrdersForAdminAsync(
+                query.PageNumber,
+                query.PageSize,
+                query.Status,
+                query.StartDate,
+                query.EndDate
+            );
+
+            return Ok(ApiResponse<PagedResponse<OrderListItemDto>>.Ok(result));
         }
 
    

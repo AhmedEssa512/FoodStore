@@ -5,6 +5,8 @@ using FoodStore.Data.Repositories.Interfaces;
 using FoodStore.Data.Entities.Enums;
 using FoodStore.Contracts.DTOs.Order;
 using FoodStore.Contracts.Interfaces;
+using FoodStore.Contracts.Common;
+using System.Linq.Expressions;
 
 namespace FoodStore.Services.Implementations
 {
@@ -180,6 +182,45 @@ namespace FoodStore.Services.Implementations
             };
         }
 
+        public async Task<PagedResponse<OrderListItemDto>> GetAllOrdersForAdminAsync(
+            int pageNumber,
+            int pageSize,
+            string? statusFilter = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null)
+        {
+            
+            Expression<Func<Order, bool>>? filter = null;
+
+            if (!string.IsNullOrWhiteSpace(statusFilter) || startDate.HasValue || endDate.HasValue)
+            {
+                filter = o =>
+                    (string.IsNullOrWhiteSpace(statusFilter) || o.Status.ToString() == statusFilter) &&
+                    (!startDate.HasValue || o.CreatedAt >= startDate.Value) &&
+                    (!endDate.HasValue || o.CreatedAt <= endDate.Value);
+            }
+
+            var result = await _unitOfWork.Order.GetAllOrders(pageNumber, pageSize, filter);
+
+            // manuel mapping
+            var items = result.Items.Select(o => new OrderListItemDto
+            {
+                Id = o.Id,
+                FullName = o.FullName,
+                Status = o.Status.ToString(),
+                Total = o.Total,
+                CreatedAt = o.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+            }).ToList();
+
+            return new PagedResponse<OrderListItemDto>(
+                items,
+                result.TotalCount,
+                pageNumber,
+                pageSize
+            );
+
+
+        }
         public async Task<OrderResponseDto> UpdateOrderStatusAsync(int orderId, string newStatus)
         {
             var order = await _unitOfWork.Order.GetByIdAsync(orderId) ?? 
