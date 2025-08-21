@@ -10,9 +10,12 @@ namespace FoodStore.Services.Implementations
     {
      
         private readonly IUnitOfWork _unitOfWork;
-         public CartService(IUnitOfWork unitOfWork)
+        private readonly IImageService _imageService;
+
+         public CartService(IUnitOfWork unitOfWork, IImageService imageService)
          {
             _unitOfWork = unitOfWork;
+            _imageService = imageService;
          }
 
         public async Task AddToCartAsync(string userId,CartItemDto cartItemDto)
@@ -101,7 +104,7 @@ namespace FoodStore.Services.Implementations
                         Id = item.Food!.Id,
                         Name = item.Food.Name,
                         Price = item.Food.Price,
-                        ImageUrl = item.Food.ImageUrl
+                        ImageUrl = _imageService.GetFullUrl(item.Food.ImageUrl)
                     }
                 }).ToList()
             };
