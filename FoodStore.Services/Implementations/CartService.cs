@@ -17,15 +17,18 @@ namespace FoodStore.Services.Implementations
 
         public async Task AddToCartAsync(string userId,CartItemDto cartItemDto)
         {
-            
 
-                var foodExists = await _unitOfWork.Food.AnyFoodAsync(cartItemDto.FoodId);
-                if (!foodExists)
-                 throw new NotFoundException($"Food item does not exist.");
 
-                decimal foodPrice = await _unitOfWork.Food.GetPriceAsync(cartItemDto.FoodId);
+            var food = await _unitOfWork.Food.GetByIdAsync(cartItemDto.FoodId);
 
-                if(foodPrice <= 0) throw new ValidationException("Invalid price. Price must be greater than 0");
+            if (food is null)
+                throw new NotFoundException("Food item does not exist.");
+
+            if (!food.IsAvailable)
+                throw new ValidationException("This food item is not available.");
+
+            if (food.Price <= 0)
+                throw new ValidationException("Invalid price. Price must be greater than 0");
 
                 await _unitOfWork.BeginTransactionAsync();
 
@@ -50,7 +53,7 @@ namespace FoodStore.Services.Implementations
                     {
                         FoodId = cartItemDto.FoodId,
                         Quantity = cartItemDto.Quantity,
-                        Price = foodPrice,
+                        Price = food.Price,
                         CartId = cart.Id
                     });
                 }
