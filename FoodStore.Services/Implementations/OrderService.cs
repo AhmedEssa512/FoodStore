@@ -36,6 +36,22 @@ namespace FoodStore.Services.Implementations
                 {
                     throw new ForbiddenException("You do not have permission to create an order");
                 }
+
+                //  Collect food IDs from cart
+                var foodIds = cart.Items.Select(i => i.FoodId).ToList();
+
+                //  Fetch cart foods in one query
+                var foods = await _unitOfWork.Food.GetFoodsByIdsAsync(foodIds);
+                var foodMap = foods.ToDictionary(f => f.Id);
+
+                //  Validate availability
+                foreach (var item in cart.Items)
+                {
+                    if (!foodMap.TryGetValue(item.FoodId, out var food) || !food.IsAvailable)
+                    {
+                        throw new ValidationException($"Food item with id {item.FoodId} is not available.");
+                    }
+                }
                 
                 var order = _mapper.Map<Order>(orderDto);
 
