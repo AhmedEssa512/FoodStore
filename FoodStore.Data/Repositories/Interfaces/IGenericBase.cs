@@ -9,14 +9,15 @@ namespace FoodStore.Data.Repositories.Interfaces
     public interface IGenericBase<T> where T : class
     {
 
-        Task<T?> GetByIdAsync(int id);
-        Task<T> AddAsync(T entity);
-        Task AddRangeAsync(ICollection<T> entities);
-        Task UpdateAsync(T entity);
-        Task UpdateRangeAsync(ICollection<T> entities);
-        Task DeleteAsync(T entity);
-        Task DeleteRangeAsync(ICollection<T> entities);
+    Task<T?> GetByIdAsync(int id);
+    Task<T> AddAsync(T entity);
+    Task AddRangeAsync(IEnumerable<T> entities);
 
+   
+    void Update(T entity);
+    void UpdateRange(IEnumerable<T> entities);
+    void Delete(T entity);
+    void DeleteRange(IEnumerable<T> entities);
 
 
     }

@@ -124,7 +124,7 @@ namespace FoodStore.Services.Implementations
                 // Verify ownership of the cart
                 if (cartItem.Cart == null || cartItem.Cart.UserId != userId ) throw new ForbiddenException("You do not have permission to update this cart item");
 
-                await _unitOfWork.CartItem.DeleteAsync(cartItem);
+                _unitOfWork.CartItem.Delete(cartItem);
 
                 cartItem.Cart.Total -= cartItem.Price * cartItem.Quantity;
 
@@ -148,7 +148,7 @@ namespace FoodStore.Services.Implementations
 
             if (cart.Items.Count == 0) throw new InvalidOperationException("Cart is already empty.");
 
-            await _unitOfWork.CartItem.DeleteRangeAsync(cart.Items);
+            _unitOfWork.CartItem.DeleteRange(cart.Items);
 
             cart.Total = cart.Items.Sum(i => i.Price * i.Quantity);
 

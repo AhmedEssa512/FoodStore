@@ -73,7 +73,7 @@ namespace FoodStore.Services.Implementations
 
                 await _unitOfWork.OrderDetails.AddRangeAsync(orderDetails);
 
-                await _unitOfWork.Cart.DeleteAsync(cart);
+                _unitOfWork.Cart.Delete(cart);
 
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();
@@ -97,7 +97,7 @@ namespace FoodStore.Services.Implementations
                 var order = await _unitOfWork.Order.GetByIdAsync(orderId) ?? 
                    throw new NotFoundException("Order not found");
 
-                await _unitOfWork.Order.DeleteAsync(order);
+                _unitOfWork.Order.Delete(order);
 
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();

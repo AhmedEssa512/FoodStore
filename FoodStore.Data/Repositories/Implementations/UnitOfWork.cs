@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using FoodStore.Data.Context;
 using FoodStore.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FoodStore.Data.Repositories.Implementations
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork , IAsyncDisposable
     {
-private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
+    private IDbContextTransaction? _currentTransaction;
 
     public IFoodRepository Food { get; }
     public ICategoryRepository Category { get; }
@@ -42,11 +44,47 @@ private readonly ApplicationDbContext _context;
     }
 
 
-        public async Task BeginTransactionAsync() => await _context.Database.BeginTransactionAsync();
-        public async Task CommitTransactionAsync() => await _context.Database.CommitTransactionAsync();
-        public async Task RollbackTransactionAsync() => await _context.Database.RollbackTransactionAsync();
-        public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
-        public void Dispose() => _context.Dispose();
+    public async Task BeginTransactionAsync()
+    {
+        _currentTransaction = await _context.Database.BeginTransactionAsync();
+    }
 
+    public async Task CommitTransactionAsync()
+    {
+        if (_currentTransaction == null)
+            throw new InvalidOperationException("No active transaction.");
+
+        await _context.SaveChangesAsync();
+        await _currentTransaction.CommitAsync();
+        await _currentTransaction.DisposeAsync();
+        _currentTransaction = null;
+    }
+
+    public async Task RollbackTransactionAsync()
+    {
+        if (_currentTransaction == null)
+            return;
+
+        await _currentTransaction.RollbackAsync();
+        await _currentTransaction.DisposeAsync();
+        _currentTransaction = null;
+    }
+
+    public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_currentTransaction != null)
+        {
+            await _currentTransaction.DisposeAsync();
+        }
+
+        await _context.DisposeAsync();
+    }
+
+        public void Dispose()
+        {
+           DisposeAsync().GetAwaiter().GetResult();
+        }
     }
 }

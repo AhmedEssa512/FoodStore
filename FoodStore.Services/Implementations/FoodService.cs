@@ -85,7 +85,7 @@ namespace FoodStore.Services.Implementations
 
                 _mapper.Map(foodDto, food); 
 
-                await _unitOfWork.Food.UpdateAsync(food);
+                _unitOfWork.Food.Update(food);
                 await _unitOfWork.SaveChangesAsync();
 
                 await _unitOfWork.CommitTransactionAsync();
@@ -104,7 +104,7 @@ namespace FoodStore.Services.Implementations
 
             food.IsAvailable = isAvailable;
 
-            await _unitOfWork.Food.UpdateAsync(food);
+             _unitOfWork.Food.Update(food);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -122,7 +122,7 @@ namespace FoodStore.Services.Implementations
                    await _imageService.DeleteImageAsync(food.ImageUrl); 
                 }
 
-                await _unitOfWork.Food.DeleteAsync(food);
+                _unitOfWork.Food.Delete(food);
                 await _unitOfWork.SaveChangesAsync(); 
 
                 await _unitOfWork.CommitTransactionAsync();

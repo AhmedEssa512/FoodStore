@@ -35,7 +35,7 @@ namespace FoodStore.Services.Implementations
 
             if(category is null) throw new NotFoundException("Category is not found");
 
-            await _unitOfWork.Category.DeleteAsync(category);
+            _unitOfWork.Category.Delete(category);
 
             await _unitOfWork.SaveChangesAsync();
         }
@@ -75,7 +75,7 @@ namespace FoodStore.Services.Implementations
 
             category.Name = categoryDto.Name;
 
-            await _unitOfWork.Category.UpdateAsync(category);
+            _unitOfWork.Category.Update(category);
 
             await _unitOfWork.SaveChangesAsync();
 
