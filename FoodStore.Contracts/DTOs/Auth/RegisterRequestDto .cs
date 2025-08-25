@@ -19,6 +19,10 @@ namespace FoodStore.Contracts.DTOs.Auth
         [MinLength(3, ErrorMessage = "Username must be at least 3 characters.")]
         public required string Username { get; set; }
 
+        [Phone(ErrorMessage = "Invalid phone number format.")]
+        [MaxLength(20, ErrorMessage = "Phone number must not exceed 20 characters.")]
+        public required string PhoneNumber { get; set; }
+
         [Required(ErrorMessage = "Password is required.")]
         [MaxLength(100, ErrorMessage = "Password must not exceed 100 characters.")]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]

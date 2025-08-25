@@ -18,6 +18,7 @@ using System.Net;
 using FoodStore.Contracts.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using FoodStore.Services.Exceptions;
 
 
 namespace FoodStore.Services.Implementations.Security
@@ -46,7 +47,7 @@ namespace FoodStore.Services.Implementations.Security
         public async Task<AuthResultWrapper<LoginResponseDto>> LogInAsync(LoginRequestDto loginRequestDto)
         {
             var user = await _userManager.FindByEmailAsync(loginRequestDto.Email);
-            if (user is null || !await _userManager.CheckPasswordAsync(user, loginRequestDto.Password))
+            if (user is null)
             {
                 return new AuthResultWrapper<LoginResponseDto>
                 {
@@ -54,6 +55,22 @@ namespace FoodStore.Services.Implementations.Security
                     {
                         IsAuthenticated = false,
                     }
+                };
+            }
+
+            //  Check lockout / suspension
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
+            {
+                throw new OperationFailedException(
+                    $"Your account is suspended until {user.LockoutEnd.Value.UtcDateTime}.");
+            }
+            
+
+            if (!await _userManager.CheckPasswordAsync(user, loginRequestDto.Password))
+            {
+                return new AuthResultWrapper<LoginResponseDto>
+                {
+                    Response = new LoginResponseDto { IsAuthenticated = false }
                 };
             }
 
@@ -129,7 +146,8 @@ namespace FoodStore.Services.Implementations.Security
             var user = new ApplicationUser
             {
                 Email = registerRequestDto.Email,
-                UserName = registerRequestDto.Username
+                UserName = registerRequestDto.Username,
+                PhoneNumber = registerRequestDto.PhoneNumber,
             };
 
             var result = await _userManager.CreateAsync(user, registerRequestDto.Password);
@@ -274,8 +292,8 @@ namespace FoodStore.Services.Implementations.Security
 
             var dto = new UserInfoDto
             {
-                Email = email,
-                Username = username,
+                Email = email!,
+                Username = username!,
                 Roles = roles
             };
 
