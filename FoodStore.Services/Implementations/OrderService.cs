@@ -60,18 +60,14 @@ namespace FoodStore.Services.Implementations
                 order.UserId = userId;
                 order.Total = cart.Total;
 
-                 await _unitOfWork.Order.AddAsync(order);
-
-                var orderDetails = cart.Items.Select(cartItem => new OrderDetail
+		       order.OrderDetails = cart.Items.Select(cartItem => new OrderDetail
                 {
-                    OrderId = order.Id, 
-                    Quantity = cartItem.Quantity,
-                    UnitPrice = cartItem.Price,
-                    FoodId = cartItem.FoodId
+                  Quantity = cartItem.Quantity,
+                  UnitPrice = cartItem.Price,
+                  FoodId = cartItem.FoodId
                 }).ToList();
 
-
-                await _unitOfWork.OrderDetails.AddRangeAsync(orderDetails);
+                await _unitOfWork.Order.AddAsync(order);
 
                 _unitOfWork.Cart.Delete(cart);
 
