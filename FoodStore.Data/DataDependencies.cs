@@ -22,6 +22,8 @@ namespace FoodStore.Data
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ICartItemRepository, CartItemRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IReportRepository, ReportRepository>();
+
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
