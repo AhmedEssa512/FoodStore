@@ -22,6 +22,8 @@ namespace FoodStore.Services
              services.AddScoped<IAuthorizationService,AuthorizationService>();
              services.AddScoped<IDashboardService,DashboardService>();
              services.AddScoped<ICustomerService,CustomerService>();
+             services.AddScoped<IReportService,ReportService>();
+
 
 
             return services;
