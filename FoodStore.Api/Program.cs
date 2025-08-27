@@ -18,10 +18,15 @@ using FoodStore.Contracts.Config;
 using FoodStore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 using FoodStore.Data;
+using FoodStore.Api.Exports;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// configure QuestPDF license
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Clear the default claim type mappings
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -77,6 +82,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                                             
              builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+             builder.Services.AddScoped<IReportExportService, ReportExportService>();
 
              builder.Services.AddDataDependencies();    
              builder.Services.AddServicesDependencies();
