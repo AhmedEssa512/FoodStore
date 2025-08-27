@@ -247,10 +247,6 @@ namespace FoodStore.Services.Implementations
                 (OrderStatus.Pending, OrderStatus.Canceled) => true,
                 (OrderStatus.Preparing, OrderStatus.Canceled) => true,
 
-                // Allow failure from any non-final state
-                (OrderStatus.Pending, OrderStatus.Failed) => true,
-                (OrderStatus.Preparing, OrderStatus.Failed) => true,
-
                 _ => false
             };
         }

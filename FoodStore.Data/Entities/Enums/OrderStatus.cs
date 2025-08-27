@@ -13,7 +13,7 @@ namespace FoodStore.Data.Entities.Enums
       
         Canceled,
 
-        Failed,
+        // Failed,
     }
 
 }
