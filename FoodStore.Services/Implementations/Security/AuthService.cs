@@ -56,15 +56,7 @@ namespace FoodStore.Services.Implementations.Security
                         IsAuthenticated = false,
                     }
                 };
-            }
-
-            //  Check lockout / suspension
-            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
-            {
-                throw new OperationFailedException(
-                    $"Your account is suspended until {user.LockoutEnd.Value.UtcDateTime}.");
-            }
-            
+            }            
 
             if (!await _userManager.CheckPasswordAsync(user, loginRequestDto.Password))
             {
@@ -73,6 +65,20 @@ namespace FoodStore.Services.Implementations.Security
                     Response = new LoginResponseDto { IsAuthenticated = false }
                 };
             }
+
+            //  Check lockout / suspension
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
+            {
+                if (user.LockoutEnd == DateTimeOffset.MaxValue)
+                {
+                   throw new OperationFailedException("Your account has been permanently suspended.");
+                }
+
+                throw new OperationFailedException(
+                    $"Your account is suspended until {user.LockoutEnd.Value.UtcDateTime:g}.");
+				// :g (general short format) makes the date more user-friendly
+            }
+
 
             var listRoles = await _userManager.GetRolesAsync(user);
             var token = await CreateJwtToken(user);
