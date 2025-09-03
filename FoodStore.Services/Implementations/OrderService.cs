@@ -241,11 +241,14 @@ namespace FoodStore.Services.Implementations
             {
                 // Standard forward progression
                 (OrderStatus.Pending, OrderStatus.Preparing) => true,
-                (OrderStatus.Preparing, OrderStatus.Delivered) => true,
+                (OrderStatus.Preparing, OrderStatus.OutForDelivery) => true,
+                (OrderStatus.OutForDelivery, OrderStatus.Delivered) => true,
 
                 // Allow cancel from early stages
                 (OrderStatus.Pending, OrderStatus.Canceled) => true,
                 (OrderStatus.Preparing, OrderStatus.Canceled) => true,
+                (OrderStatus.OutForDelivery, OrderStatus.Canceled) => true,
+
 
                 _ => false
             };
