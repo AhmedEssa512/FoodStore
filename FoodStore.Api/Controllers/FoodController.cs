@@ -86,6 +86,7 @@ namespace FoodStore.Api.Controllers
         }
 
         [HttpPatch("{foodId}/availability")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateAvailability(int foodId, [FromBody] bool isAvailable)
         {
             await _foodService.UpdateFoodAvailabilityAsync(foodId, isAvailable);
