@@ -14,15 +14,15 @@ namespace FoodStore.Services.Implementations
     {
 
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMemoryCache _memoryCache;
         private readonly IImageService _imageService;
         private readonly IMapper _mapper;
-        public FoodService(IUnitOfWork unitOfWork, IMemoryCache memoryCache, IImageService imageService, IMapper mapper)
+        private readonly ICacheService _cacheService;
+        public FoodService(IUnitOfWork unitOfWork, IImageService imageService, IMapper mapper, ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
-            _memoryCache = memoryCache;
             _imageService = imageService;
             _mapper = mapper;
+            _cacheService = cacheService;
         }
         public async Task<FoodResponseDto> CreateFoodAsync(FoodCreateDto foodCreateDto, Stream imageStream, string originalFileName)
         {
@@ -45,6 +45,7 @@ namespace FoodStore.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 await _unitOfWork.CommitTransactionAsync();
+                _cacheService.RemoveByPrefix("Foods_");
 
                 return _mapper.Map<FoodResponseDto>(food);
             }
@@ -89,6 +90,7 @@ namespace FoodStore.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 await _unitOfWork.CommitTransactionAsync();
+                _cacheService.RemoveByPrefix("Foods_");
             }
             catch
             {
@@ -106,6 +108,7 @@ namespace FoodStore.Services.Implementations
 
              _unitOfWork.Food.Update(food);
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix("Foods_");
         }
 
 
@@ -126,6 +129,7 @@ namespace FoodStore.Services.Implementations
                 await _unitOfWork.SaveChangesAsync(); 
 
                 await _unitOfWork.CommitTransactionAsync();
+                _cacheService.RemoveByPrefix("Foods_");
             }
             catch (Exception)
             {
@@ -148,10 +152,9 @@ namespace FoodStore.Services.Implementations
         public async Task<PagedResponse<FoodResponseDto>> GetFoodsAsync(PaginationParams paginationParams, int? categoryId = null)
         {
             string cacheKey = $"Foods_Category_{categoryId?.ToString() ?? "All"}_Page_{paginationParams.PageNumber}_Size_{paginationParams.PageSize}";
-
-            // Use pattern matching to ensure the cached object is of the expected type.
-            if (_memoryCache.TryGetValue(cacheKey, out var cachedObj) && 
-                cachedObj is PagedResponse<FoodResponseDto> cachedResponse)
+            Console.WriteLine($"[Cache Key] get {cacheKey} ");
+            var cachedResponse = _cacheService.Get<PagedResponse<FoodResponseDto>>(cacheKey);
+            if (cachedResponse != null)
                 return cachedResponse;
 
             var (foods ,totalCount) = await _unitOfWork.Food.GetPaginatedFoods(paginationParams.PageNumber, paginationParams.PageSize,categoryId);
@@ -165,10 +168,7 @@ namespace FoodStore.Services.Implementations
                 pageSize: paginationParams.PageSize
             );
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(10));
-
-                _memoryCache.Set(cacheKey, response, cacheEntryOptions);
+            _cacheService.Set(cacheKey, response, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(30));
             
             return response;
         }
@@ -182,10 +182,9 @@ namespace FoodStore.Services.Implementations
 
             string cacheKey = $"Foods_Search_{normalizedQuery}_Page_{paginationParams.PageNumber}_Size_{paginationParams.PageSize}";
 
-
-            if (_memoryCache.TryGetValue(cacheKey, out var cachedObj) && 
-                cachedObj is PagedResponse<FoodResponseDto> cachedResult)
-                return cachedResult;
+            var cacheResult = _cacheService.Get<PagedResponse<FoodResponseDto>>(cacheKey);
+            if(cacheResult != null)
+                return cacheResult;
 
             var (foods, totalCount) = await _unitOfWork.Food.SearchFoodsInDatabaseAsync(normalizedQuery, paginationParams.PageNumber, paginationParams.PageSize);
 
@@ -198,10 +197,8 @@ namespace FoodStore.Services.Implementations
                 pageSize: paginationParams.PageSize
             );
 
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(10));
 
-            _memoryCache.Set(cacheKey, result, cacheEntryOptions);
+            _cacheService.Set(cacheKey, result, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(30));
             
             return result;
         }
