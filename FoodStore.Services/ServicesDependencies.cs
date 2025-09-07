@@ -23,6 +23,7 @@ namespace FoodStore.Services
              services.AddScoped<IDashboardService,DashboardService>();
              services.AddScoped<ICustomerService,CustomerService>();
              services.AddScoped<IReportService,ReportService>();
+             services.AddSingleton<ICacheService, CacheService>();
 
 
 
