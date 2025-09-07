@@ -108,10 +108,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
                     {
-                      policy.WithOrigins("http://localhost:4200")
+                      policy.SetIsOriginAllowed(_ => true)
 			                .AllowCredentials()
                             .AllowAnyMethod()
-                            .AllowAnyHeader();             
+                            .AllowAnyHeader();          
                     });
             });
 
